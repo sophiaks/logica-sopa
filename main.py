@@ -26,8 +26,6 @@ def check_first(list):
         return sig_list, num_list
 
 def check_syntax(num_list, sig_list):
-    print(len(num_list), len(sig_list))
-    print(num_list, sig_list)
     if len(num_list) != len(sig_list) + 1:
         raise Exception("Existem elementos faltando")
     if len(sig_list) == 0:
