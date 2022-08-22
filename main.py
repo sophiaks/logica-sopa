@@ -21,8 +21,15 @@ def check_first(list):
     else:
         num_list = list[::2]
         sig_list = list[1::2]
-        print(sig_list, num_list)
         return sig_list, num_list
+
+def check_syntax(num_list, sig_list):
+    if len(num_list) != len(sig_list) + 1:
+        raise Exception("Existem sinais faltando")
+    if len(sig_list) == 0:
+        raise Exception("A formula nao contem sinais")
+    if len(num_list) == 0:
+        raise Exception("A formula nao contem numeros")
 
 sig_list, num_list = check_first(num_sig)
 
