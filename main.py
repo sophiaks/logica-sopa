@@ -14,6 +14,8 @@ sigs = re.findall(r'[+-]+', formula)
 num_sig  = re.split(r'(\D)', formula)
 if '' in num_sig:
     num_sig.remove('')
+if ' ' in num_sig:
+    num_sig.remove(' ')
 
 def check_first(list):
     if list[0] in sig_dict:
@@ -24,15 +26,17 @@ def check_first(list):
         return sig_list, num_list
 
 def check_syntax(num_list, sig_list):
+    print(len(num_list), len(sig_list))
+    print(num_list, sig_list)
     if len(num_list) != len(sig_list) + 1:
-        raise Exception("Existem sinais faltando")
+        raise Exception("Existem elementos faltando")
     if len(sig_list) == 0:
         raise Exception("A formula nao contem sinais")
     if len(num_list) == 0:
         raise Exception("A formula nao contem numeros")
 
 sig_list, num_list = check_first(num_sig)
-
+check_syntax(num_list, sig_list)
 res = 0
 minus = False
 for num, sig in itertools.zip_longest(num_list, sig_list):
