@@ -51,3 +51,4 @@ for num, sig in itertools.zip_longest(num_list, sig_list):
         minus = False
 
 print(res)
+
