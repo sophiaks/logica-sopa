@@ -26,76 +26,102 @@ class Tokenizer:
         self.source = source
         self.position = 0
         self.next = None
+        self.first = True
 
     def selectNext(self):
+        print(f"POS: {self.position}; value: {self.source[self.position]}")
         temp_next = ''
-        print("selectNext called")
-        while isNumber(self.source[self.position]):
-            print("Char is number")
-            if (self.source[self.position + 1] == '+') or (self.source[self.position + 1] == '-'):
-                print(f"Found a sign in position {self.position + 1}")
-                self.next = Token('INT', int(temp_next))
-                print(f"Updating next token to {self.next.value}")
-            else:
-                temp_next += self.source[self.position]
-                print(f"Position: {self.position}, char: {self.source[self.position]}")
-
-                self.position += 1
-        if temp_next != '':    
-            print("temp_next is empty")
-            self.next = Token('INT', int(temp_next))
-                
-        if self.source[self.position] == '+':
-            self.next = Token('PLUS', '+')
-            print(f"Position: {self.position}, char: {self.source[self.position]}")
-            self.position += 1
-        elif self.source[self.position] == '-':
-            print(f"Position: {self.position}, char: {self.source[self.position]}")
-            self.next = Token('MINUS', '-')
-            self.position += 1
-        # elif self.source[self.position] == '*':
-        #     self.next = Token('MULT', '*')
-        #     print(f"Updating next token to {self.next}")
-        # elif self.source[self.position] == '/':
-        #     self.next = Token('DIV', '/')
-        #     print(f"Updating next token to {self.next}")
-        elif self.position > len(self.source):
+        
+        print(f"self.pos = {self.position}; len of source: {len(self.source)}")
+        if self.position >= len(self.source):
             self.next = Token('EOF', '')
             print(f"Reached end of file")
+            quit()
         
-        
+        while isNumber(self.source[self.position]):
+            print(f"POS: {self.position}; value: {self.source[self.position]}")
+            if (self.position != len(self.source) - 1):
+                if (self.source[self.position + 1] == '+') or (self.source[self.position + 1] == '-'):
+                    print(f"POS: {self.position}; value: {self.source[self.position]}")
+                    temp_next += self.source[self.position]
+                    self.next = Token('INT', int(temp_next))
+                    self.first = False
+                    print(f"self.next = {self.next.value}")
+                    self.position += 1
+                    temp_next == ''
+                    return
+                
+                else:
+                    print(f"POS: {self.position}; value: {self.source[self.position]}")
+                    temp_next += self.source[self.position]
+                    print(f"temp_next = {temp_next}")
+
+            else: 
+                temp_next += self.source[self.position]
+                self.next = Token('INT', int(temp_next))
+                return
+
+            self.position += 1
+
+        if temp_next != '':
+            print(f"POS: {self.position}; value: {self.source[self.position]}")
+            self.next = Token('INT', int(temp_next))
+            self.position += 1
+                
+        if self.source[self.position] == '+':
+            print(f"Position: {self.position}, POSITIVO")
+            self.next = Token('PLUS', '+')
+            self.position += 1
+
+
+        if self.source[self.position] == '-':
+            print(f"Position: {self.position}, NEGATIVO")
+            self.next = Token('MINUS', '-')
+            self.position += 1
+
             
 
 class Parser:
 
     tokenizer = None
+    res = 0
 
     @staticmethod
     def parseExpression():
-        Parser.tokenizer.selectNext()
-        print(f"Token: {Parser.tokenizer.next.type, Parser.tokenizer.next.value}")
-        res = 0
+        if Parser.tokenizer.first:
+            Parser.tokenizer.selectNext()
+            print(f"First token read: {Parser.tokenizer.next.value}")
+            res = Parser.tokenizer.next.value
+            print(res)
+        else:
+            print("Not first token")
         if Parser.tokenizer.next.type == 'INT':
+            print("Exited func")
             res = int(Parser.tokenizer.next.value)
-            print("After int, selecting next")
             Parser.tokenizer.selectNext()
             while Parser.tokenizer.next.type in ['MINUS', 'PLUS']:
-                print("Found plus or minus")
                 if Parser.tokenizer.next.type == 'PLUS':
                     Parser.tokenizer.selectNext()
                     if Parser.tokenizer.next.type == 'INT':
                         res += Parser.tokenizer.next.value
+                        print(res)
                     else: 
                         raise Exception("Syntax Error")
                 if Parser.tokenizer.next.type == 'MINUS':
                     Parser.tokenizer.selectNext()
                     if Parser.tokenizer.next.type == 'INT':
                         res -= Parser.tokenizer.next.value
+                        print(res)
                     else:
                         raise Exception("Syntax Error")
                 Parser.tokenizer.selectNext()
-            print(f"Res: {res}")
+                if (Parser.tokenizer.next.type == 'EOF'):
+                    return res 
+            print(f"{res}")
             return res
+        else:
+            print(Parser.tokenizer.position)
+            raise Exception(f"{Parser.tokenizer.next.value} is not an INT type")
 
     # @staticmethod
     # def parseTerm(tokenizer):
@@ -122,10 +148,6 @@ class Parser:
     #         return res
     
     def run(code):
-        print("Runnning Code")
-        print(".")
-        print("..")
-        print("...")
         Parser.tokenizer = Tokenizer(lexicalOptimization(code))
         Parser.parseExpression()
 
