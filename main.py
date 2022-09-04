@@ -9,7 +9,7 @@ def prePro(source):
     #clean_code = re.sub(r'(\s|\u180B|\u200B|\u200C|\u200D|\u2060|\uFEFF)+', '', source)
     clean_code = re.sub("\s*(\W)\s*",r"\1", source)
     no_comments_hashtag = re.sub('#.*', '', clean_code)
-    no_comments = re.sub('//.*', '', no_comments_hashtag)
+    no_comments = re.sub('//.*', '', no_comments_hashtag).strip()
     if no_comments != re.sub("\s*", '', no_comments):
         raise Exception("Between two numbers there must be an operand")
     if len(no_comments) == 0:
