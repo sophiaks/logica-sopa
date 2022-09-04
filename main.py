@@ -85,7 +85,7 @@ class Tokenizer:
         if self.source[self.position] == '*':
             self.next = Token('MULT', '*')
             self.position += 1 
-        
+         
         if self.source[self.position] == '/':
             self.next = Token('DIV', '/')
             self.position += 1
