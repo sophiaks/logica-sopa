@@ -6,8 +6,14 @@ from urllib.parse import parse_qs
 source = sys.argv[1]
 
 def prePro(source):
-    clean_code = re.sub(r'(\s|\u180B|\u200B|\u200C|\u200D|\u2060|\uFEFF)+', '', source)
-    no_comments = re.sub('#.*', '', clean_code)
+    #clean_code = re.sub(r'(\s|\u180B|\u200B|\u200C|\u200D|\u2060|\uFEFF)+', '', source)
+    clean_code = re.sub("\s*(\W)\s*",r"\1", source)
+    no_comments_hashtag = re.sub('#.*', '', clean_code)
+    no_comments = re.sub('//.*', '', no_comments_hashtag)
+    if no_comments != re.sub("\s*", '', no_comments):
+        raise Exception("Between two numbers there must be an operand")
+    if len(no_comments) == 0:
+        raise Exception("Empty input")
     return no_comments
 
 def isNumber(num):
@@ -61,7 +67,9 @@ class Tokenizer:
 
             self.position += 1
             
-
+        if temp_next == ' ':
+            raise Exception("Cannot have spaces between numbers")
+        
         if temp_next != '':
             self.next = Token('INT', int(temp_next))
             self.position += 1
@@ -110,6 +118,7 @@ class Parser:
                         res -= Parser.parseTerm()
                     else:
                         raise Exception("Syntax Error")
+            
             print(res)
             return res
         else:
