@@ -1,7 +1,10 @@
+from asyncio import selector_events
 import re
+from select import select
 import sys
 import itertools
 from urllib.parse import parse_qs
+from xml.etree.ElementPath import _SelectorContext
 
 source = sys.argv[1]
 
@@ -35,11 +38,21 @@ class Tokenizer:
         self.next = None
         self.first = True
 
+    def createToken(self):
+        if self.source[self.position] == '+':
+            self.next = Token('PLUS', '+')
+            self.position += 1
+            # TODO:
+
     def selectNext(self):
+        
+        if self.position == 0:
+            self.first = False
+        
         temp_next = ''
         if self.position >= len(self.source):
             self.next = Token('EOF', '')
-            quit()
+            return self.next
         
         while isNumber(self.source[self.position]):
             # if character is a number
@@ -67,28 +80,46 @@ class Tokenizer:
 
             self.position += 1
             
-        if temp_next == ' ':
-            raise Exception("Cannot have spaces between numbers")
         
         if temp_next != '':
             self.next = Token('INT', int(temp_next))
             self.position += 1
+            return self.next
                 
         if self.source[self.position] == '+':
             self.next = Token('PLUS', '+')
             self.position += 1
+            return self.next
 
         if self.source[self.position] == '-':
             self.next = Token('MINUS', '-')
             self.position += 1
+            return self.next
 
         if self.source[self.position] == '*':
             self.next = Token('MULT', '*')
             self.position += 1 
+            return self.next
          
         if self.source[self.position] == '/':
             self.next = Token('DIV', '/')
             self.position += 1
+            return self.next
+
+        if self.source[self.position] == '/':
+            self.next = Token('DIV', '/')
+            self.position += 1
+            return self.next
+
+        if self.source[self.position] == '(':
+            self.next = Token('OPEN_PAR', '(')
+            self.position += 1
+            return self.next
+
+        if self.source[self.position] == ')':
+            self.next = Token('CLOSE_PAR', ')')
+            self.position += 1
+            return self.next
 
             
 
@@ -97,61 +128,97 @@ class Parser:
     tokenizer = None
     res = 0
 
-
     @staticmethod
     def parseExpression():
-        if Parser.tokenizer.first:
-            Parser.tokenizer.selectNext()
-            res = Parser.tokenizer.next.value
-        if Parser.tokenizer.next.type == 'INT':
-            res = Parser.parseTerm()
-            while Parser.tokenizer.next.type in ['MINUS', 'PLUS']:
-                if Parser.tokenizer.next.type == 'PLUS':
-                    Parser.tokenizer.selectNext()
-                    if Parser.tokenizer.next.type == 'INT':
-                        res += Parser.parseTerm()
-                    else: 
-                        raise Exception("Syntax Error")
-                if Parser.tokenizer.next.type == 'MINUS':
-                    Parser.tokenizer.selectNext()
-                    if Parser.tokenizer.next.type == 'INT':
-                        res -= Parser.parseTerm()
-                    else:
-                        raise Exception("Syntax Error")
-            
-            print(res)
-            return res
-        else:
-            raise Exception(f"{Parser.tokenizer.next.value} is not an INT type")
+        print(f"Current status (parseExpression): next = {Parser.tokenizer.next.value};")
+        res = Parser.parseTerm()
+        print(f"Return from parseTerm (inside parseExpression): {res}")
+        print(f"Current token: {Parser.tokenizer.next.value}")
+        while Parser.tokenizer.next.type in ['MINUS', 'PLUS']:
+            if Parser.tokenizer.next.type == 'PLUS':
+                Parser.tokenizer.selectNext()
+                res += Parser.parseTerm()
+                print(f"Position: {Parser.tokenizer.position}")
+                print(f"After parseTerm (inside parseEx): {Parser.tokenizer.next.value}")
+            if Parser.tokenizer.next.type == 'MINUS':
+                Parser.tokenizer.selectNext()
+                res -= Parser.parseTerm()
+                print(f"After parseTerm (inside parseEx): {Parser.tokenizer.next.value}")
 
+        
+        return res
+        
     @staticmethod
     def parseTerm():
-        if Parser.tokenizer.next.type == 'INT':
-            res = int(Parser.tokenizer.next.value)
-            Parser.tokenizer.selectNext()
-            while Parser.tokenizer.next.type in ['DIV', 'MULT']:
-                if Parser.tokenizer.next.type == 'MULT':
-                    Parser.tokenizer.selectNext()
-                    if Parser.tokenizer.next.type == 'INT':
-                        res *= Parser.tokenizer.next.value
-                    else: 
-                        raise Exception("Syntax Error")
-                if Parser.tokenizer.next.type == 'DIV':
-                    Parser.tokenizer.selectNext()
-                    if Parser.tokenizer.next.type == 'INT':
-                        res //= Parser.tokenizer.next.value
-                    else:
-                        raise Exception("Syntax Error")
-                Parser.tokenizer.selectNext()
-            return res
-        else:
-            raise Exception(f"{Parser.tokenizer.next.value} is not an INT type")
+        print(f"Current status (parseTerm): next = {Parser.tokenizer.next.value};")
+        res = Parser.parseFactor()
+        print(f"parseFactor returned {res}")
 
-    
-    
+        while Parser.tokenizer.next.type in ['MULT', 'DIV']:
+            if Parser.tokenizer.next.type == 'MULT':
+                print("Found *")
+                Parser.tokenizer.selectNext()
+                res *= Parser.parseFactor()
+                
+            if Parser.tokenizer.next.type == 'DIV':
+                print("Found /")
+                Parser.tokenizer.selectNext()
+                res //= Parser.parseFactor()
+
+        print(f"parseTerm returned {res}")
+
+        return res
+
+    @staticmethod
+    def parseFactor():
+        print(f"Current status (parseFactor): next = {Parser.tokenizer.next.value};")
+        if Parser.tokenizer.next.type == 'INT':
+            res = Parser.tokenizer.next.value
+            Parser.tokenizer.selectNext()
+
+        elif Parser.tokenizer.next.type == 'MINUS':
+            print("Found MINUS")
+            print("Selecting next")
+            Parser.tokenizer.selectNext()
+            print("Calling parseFactor")
+            res = -Parser.parseFactor()
+
+        elif Parser.tokenizer.next.type == 'PLUS':
+            print("Found PLUS")
+            print("Selecting next")
+            Parser.tokenizer.selectNext()
+            print("Calling parseFactor")
+            res = Parser.parseFactor()
+
+        elif Parser.tokenizer.next.type == 'OPEN_PAR':
+            print("Opened parenthesis")
+            Parser.tokenizer.selectNext()
+            print("Calling parseExpression()")
+            res = Parser.parseExpression()
+            print(f"Exited parseExpression() -> next = {Parser.tokenizer.next.type}")
+            
+            print(Parser.tokenizer.source[Parser.tokenizer.position - 1] == ')')
+            print(Parser.tokenizer.source[Parser.tokenizer.position - 2])
+            if Parser.tokenizer.next.type != 'CLOSE_PAR':
+                if Parser.tokenizer.source[Parser.tokenizer.position - 1] == ')':
+                    print("Closed parenthesis")
+                else:
+                    raise Exception(f"Expected ')' but got {Parser.tokenizer.next.value}, {Parser.tokenizer.next.type}")
+
+            Parser.tokenizer.selectNext()
+        
+        else:
+            raise Exception(f"Expected INT, or unary, but got {Parser.tokenizer.next.type} type")
+        
+        return res
+
     def run(code):
         Parser.tokenizer = Tokenizer(prePro(code))
-        Parser.parseExpression()
-
-
+        Parser.tokenizer.selectNext()
+        res = Parser.parseExpression()
+        # if Parser.tokenizer.next.type != 'EOF':
+        #     print(f"Reached end of file, but no token was found. Current token: {Parser.tokenizer.next.value}")
+        print(res)
+        return res
+    
 Parser.run(source)
