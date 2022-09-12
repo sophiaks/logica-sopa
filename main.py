@@ -197,10 +197,10 @@ class Parser:
             
             if Parser.tokenizer.next.type != 'CLOSE_PAR':
                 # print(Parser.tokenizer.source[Parser.tokenizer.position - 1])
-                if Parser.tokenizer.source[Parser.tokenizer.position - 1] == ')' or Parser.tokenizer.source[Parser.tokenizer.position - 2] == ')':
-                    pass
-                    # print("Closed parenthesis")
-                else:
+                # if Parser.tokenizer.source[Parser.tokenizer.position - 1] == ')' or Parser.tokenizer.source[Parser.tokenizer.position - 2] == ')':
+                #     pass
+                #     # print("Closed parenthesis")
+                # else:
                     raise Exception(f"Expected ')' but got {Parser.tokenizer.next.value}, {Parser.tokenizer.next.type}")
 
         elif Parser.tokenizer.next.type == 'CLOSE_PAR':
