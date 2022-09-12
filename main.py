@@ -1,10 +1,5 @@
-from asyncio import selector_events
 import re
-from select import select
 import sys
-import itertools
-from urllib.parse import parse_qs
-from xml.etree.ElementPath import _SelectorContext
 
 char_dict = {
     'PLUS': '+',
