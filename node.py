@@ -30,7 +30,7 @@ class BinOp(Node):
             res =  a.Evaluate() - b.Evaluate()
             return res
 
-        if self.value == 'MULTI':
+        if self.value == 'MULT':
             #print(f"On BinOp: value = {self.value}; children = {self.children}")
             a = self.children[0]
             b = self.children[1]
