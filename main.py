@@ -16,18 +16,12 @@ char_dict = {
     'CLOSE_PAR': ')' 
 }
 
-#source = sys.argv[1]
-filename = sys.argv[1]
-
-file = open(filename, 'r')
-
 # Implementation for one line only - can be adapted for more than one line
+filename = sys.argv[1]
+file = open(filename, 'r')
 line =  file.readlines()
 first_line = line[0]
-# with open(file) as json_file:
-#     data = json.load(json_file)
 
-#print(f"data: {data}")
-
+# Running the program
 res = Parser.run(first_line)
 print(res.Evaluate())
