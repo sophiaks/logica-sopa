@@ -1,10 +1,8 @@
 import json
 from logging import raiseExceptions
-import readline
 import sys
 from tokenizer import Tokenizer, Token
 from parser import Parser
-import pandas as pd
 from node import Node
 
 char_dict = {
