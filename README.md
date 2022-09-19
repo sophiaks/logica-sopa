@@ -2,7 +2,7 @@
 
 ![git status](http://3.129.230.99/svg/sophiaks/logica-sopa/)
 
-![Logic_diagram drawio](https://user-images.githubusercontent.com/49500515/188505135-a2ff1458-82cd-456c-9153-e6d91081478b.png)
+![Logic_diagram_v2 1 drawio](https://user-images.githubusercontent.com/49500515/191101975-023832fd-c20f-4aa1-85d7-529cd64ad02d.png)
 
 EBNF: EXPRESSION = NUMBER, {("+" | "-" | "*" | "/"), NUMBER} ;
 
