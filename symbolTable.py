@@ -2,13 +2,17 @@ class SymbolTable:
     table = {}
 
     @staticmethod
-    def getValue(key):
-        return SymbolTable.table[key]
+    def getValue(identifier):
+        if identifier not in SymbolTable.table:
+            #print(SymbolTable.table)
+            raise Exception("Unrecognized symbol")
+        return SymbolTable.table[identifier]
 
     @staticmethod
-    def setValue(key, value):
-        SymbolTable.table[key] = value
+    def setValue(id, value):
+        SymbolTable.table[id.value] = value
     
     @staticmethod
     def getTable():
-        print(SymbolTable.table)
+        # METHOD FOR DEBUGGING ONLY
+        print(f"SymbolTable: {SymbolTable.table}")

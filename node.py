@@ -65,22 +65,16 @@ class Assignment(Node):
         if self.value == 'ASSIGNMENT':
             identifier = self.children[0]
             expression = self.children[1]
-            print("Inside Assignment")
             SymbolTable.setValue(identifier, expression.Evaluate())
-            SymbolTable.getTable()
-            print("Inside assignment node")
 
 class Identifier(Node):
     def Evaluate(self):
-        if id not in SymbolTable.table:
-            raise Exception("Symbol not recognizes")
         return SymbolTable.getValue(self.value)
 
 class Print(Node):
-    def Evaluate(self):
-        if self.value == 'PRINT':
-            a = self.children[0]
-            print(f"Print: {a.Evaluate()}")
+    def Evaluate(self):        
+        a = self.children[0]
+        print(a.Evaluate())
 
 class IntVal(Node):
     def Evaluate(self):
@@ -94,11 +88,8 @@ class NoOp(Node):
     
 class Block(Node):
     def Evaluate(self):
-        print(f"Children: {self.children} -> {len(self.children)}")
-        print(SymbolTable.getTable())
+        #print(f"Children: {self.children} -> {len(self.children)}")
         for child in self.children:
             # Evaluates chlidren in order
-            if child != None:
-                print(f"Evaluate: {child.Evaluate()}")
-            else:
-                print("Child is None")
+            #print(child)
+            child.Evaluate()

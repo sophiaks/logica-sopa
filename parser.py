@@ -42,21 +42,19 @@ class Parser:
 
     @staticmethod
     def parseBlock():
-        print("Inside parseBlock")
+        #print("Inside parseBlock")
         if Parser.tokenizer.next.type == 'OPEN_BRAC':
             block = Block(None, [])
             while Parser.tokenizer.next.type != 'CLOSE_BRAC':
                 try:
                     Parser.tokenizer.selectNext()
                     res = Parser.parseStatement()
-                    print(f"RES: {res}")
                     if res != None:
+                        #print(f"RES: {res}")
                         block.children.append(res)
-                    else:
-                        print("Child is None")
                 except:
                     raise Exception("Closing brackets not found")
-            print("Exiting parseBlock")
+            #print("Exiting parseBlock")
         return block
 
     @staticmethod
@@ -64,15 +62,14 @@ class Parser:
         if Parser.tokenizer.next.type == 'IDENTIFIER':
             id = Identifier(Parser.tokenizer.next.value)
             Parser.tokenizer.selectNext()
+
             if Parser.tokenizer.next.type == 'ASSIGNMENT':
                 Parser.tokenizer.selectNext()
                 res = Assignment('ASSIGNMENT', [id, Parser.parseExpression()])
-
-                # Assignment node OK -> Why is SymbolTable not updating?
-                
                 if Parser.tokenizer.next.type != "SEMICOLON":
                     raise Exception("Missing ;")
                 return res
+
             if Parser.tokenizer.next.type == "SEMICOLON":
                 Parser.tokenizer.selectNext()
             
@@ -85,7 +82,6 @@ class Parser:
                 raise Exception('Syntax Error (OPEN_PAR MISSING)')
         elif Parser.tokenizer.next.type == 'SEMICOLON':
             NoOp(Parser.tokenizer.next.value)
-
 
     @staticmethod
     def parseExpression():
@@ -181,5 +177,4 @@ class Parser:
         Parser.tokenizer = Tokenizer(code)
         Parser.tokenizer.selectNext()
         res = Parser.parseBlock()
-        print(res.Evaluate())
         return res            

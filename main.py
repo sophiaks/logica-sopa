@@ -32,13 +32,13 @@ code = ''
 for line in lines:
     code += prePro(line)
 
-print(f"Code -> {code}")
+#print(f"Code -> {code}")
 
 # Running the program
 # RUN WILL CALL PARSEBLOCK
 
 res = Parser.run(code)
-
+res.Evaluate()
 # PARSEBLOCK -> 2 IFS
 # comecou com letra separa
 # DOS VERIFICA SE NAO É PALAVRA RESERVADA

@@ -36,7 +36,7 @@ class Tokenizer:
                     break
             
             if temp_next.isdigit():
-                print(f'Found INT ({temp_next})')
+                #print(f'Found INT ({temp_next})')
                 self.next = Token('INT', int(temp_next))
 
             elif temp_next == "Print":
@@ -45,48 +45,40 @@ class Tokenizer:
             elif bool(re.search(variable_pattern, temp_next)):
                 self.next = Token('IDENTIFIER', temp_next)
 
-            # elif re.fullmatch(variable_pattern, temp_next):
-            #     self.next = Token('IDENTIFIER', temp_next)
-
-            else:
-                raise Exception("Token not recognized")
-        
-            return
-
 
         elif self.source[self.position] == '+':
             self.next = Token('PLUS', '+')
-            print("Found PLUS")
+            #print("Found PLUS")
             self.position += 1
             return self.next
 
         elif self.source[self.position] == '-':
             self.next = Token('MINUS', '-')
-            print("Found MINUS")
+            #print("Found MINUS")
             self.position += 1
             return self.next
 
         elif self.source[self.position] == '*':
             self.next = Token('MULT', '*')
-            print("Found MULT")
+            #print("Found MULT")
             self.position += 1
             return self.next
          
         elif self.source[self.position] == '/':
-            print("Found DIV")
+            #print("Found DIV")
             self.next = Token('DIV', '/')
             self.position += 1
             return self.next
 
         elif self.source[self.position] == '(':
             self.next = Token('OPEN_PAR', '(')
-            print("Found OPEN_PAR")
+            #print("Found OPEN_PAR")
             self.position += 1
             return self.next
         
         elif self.source[self.position] == ")":
             self.next = Token('CLOSE_PAR', ")")
-            print("Found CLOSE_PAR")
+            #print("Found CLOSE_PAR")
             self.position += 1
             return self.next   
         
@@ -110,21 +102,14 @@ class Tokenizer:
 
         elif self.source[self.position] == "=":
             self.next = Token('ASSIGNMENT', "=")
-            print("Found EQUAL")
+            #print("Found EQUAL")
             self.position += 1
             return self.next 
 
         elif self.source[self.position] == "Print":
-            print("Found PRINT-> tokenizer")
+            #print("Found PRINT-> tokenizer")
             self.next = Token('PRINT', "Print")
             self.position += 1
             return self.next 
 
-        # TODO: Create token from variable
-        # isAlpha
-
-        print(f"Next: {self.next}")
-
-        #else:
-        #    raise Exception("Token not recognized")
     
