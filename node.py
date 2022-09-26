@@ -1,5 +1,3 @@
-from contextlib import redirect_stderr
-
 class Node:
     value = None
     children = []
@@ -59,6 +57,21 @@ class UnOp(Node):
             # Recursion
             return a.Evaluate()
     
+class Assignment(Node):
+    def Evaluate(self):
+        if self.value == 'IDENTIFIER':
+            identifier = self.children[0]
+            expression = self.children[1]
+            # Parser.symbol_table.set(identifier, expression)
+            # print(Parser.symbol_table.table)
+            return expression.Evaluate()
+
+class Print(Node):
+    def Evaluate(self):
+        if self.value == 'Print':
+            a = self.children[0]
+            print(f"Print: {a}")
+            return a.Evaluate()
 
 class IntVal(Node):
     def Evaluate(self):

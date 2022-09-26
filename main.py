@@ -1,9 +1,8 @@
-import json
-from logging import raiseExceptions
+
 import sys
-from tokenizer import Tokenizer, Token
 from parser import Parser
-from node import Node
+import re
+
 
 char_dict = {
     'PLUS': '+',
@@ -14,12 +13,34 @@ char_dict = {
     'CLOSE_PAR': ')' 
 }
 
-# Implementation for one line only - can be adapted for more than one line
+
+def prePro(source):
+    clean_code = re.sub("\s*(\W)\s*",r"\1", source)
+    no_comments_hashtag = re.sub('#.*', '', clean_code)
+    no_comments = re.sub('//.*', '', no_comments_hashtag).strip()
+    #print(f"No comments: {no_comments}")
+    if no_comments != re.sub("\s*", '', no_comments):
+        raise Exception("Between two numbers there must be an operand")
+    if len(no_comments) == 0:
+        raise Exception("Empty input")
+    return no_comments
+
 filename = sys.argv[1]
 file = open(filename, 'r')
-line =  file.readlines()
-first_line = line[0]
+lines =  file.readlines()
+code = ''
+for line in lines:
+    code += prePro(line)
+
+print(f"Code -> {code}")
 
 # Running the program
-res = Parser.run(first_line)
-print(res.Evaluate())
+# RUN WILL CALL PARSEBLOCK
+
+res = Parser.run(code)
+
+# PARSEBLOCK -> 2 IFS
+# comecou com letra separa
+# DOS VERIFICA SE NAO É PALAVRA RESERVADA
+#SE FOR RESERVADA - DISPARA print
+#ELSE VARIAVL
