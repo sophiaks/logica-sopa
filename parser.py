@@ -47,6 +47,9 @@ class Parser:
             #~~~ Consumes token ~~~#
             Parser.tokenizer.selectNext()
 
+            if Parser.tokenizer.next.type == 'INT':
+                raise Exception("Variable names must not start with an INT type")
+
             block = Block(None, [])
 
             while Parser.tokenizer.next.type != 'CLOSE_BRAC':

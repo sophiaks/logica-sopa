@@ -1,6 +1,6 @@
 
-{
-    x1 = 3;
-    Print(x1);
-    }
-    
+{Print(1+1);
+Print(1-1);
+Print(1*1);
+Print(1/1);
+Print(---1);}
