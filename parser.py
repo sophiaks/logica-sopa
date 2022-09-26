@@ -1,5 +1,8 @@
+from symtable import Symbol
+from xml.dom.minidom import Identified
+from symbolTable import SymbolTable
 from tokenizer import Tokenizer
-from node import BinOp, UnOp, NoOp, IntVal, Assignment, Print
+from node import BinOp, UnOp, NoOp, IntVal, Assignment, Print, Block, Identifier
 
 reserved_words = ['if', 'else', 'Print', 'function']
 
@@ -31,62 +34,56 @@ reserved_words = ['if', 'else', 'Print', 'function']
 
 # x = 3 -> evaluate do 3 e tasca na symbol table
 # y = x + 3 -> evaluate do x -> get da symbolTable
-class SymbolTable:
-    def __init__(self):
-        self.table = {}
-
-    @staticmethod
-    def getValue(value):
-        return value
-
-    @staticmethod
-    def setValue(self, key, value):
-        self.table[key] = value
 
 class Parser:
     tokenizer = None
     res = 0
     open_par = False
-    symbol_table = None
 
     @staticmethod
     def parseBlock():
         print("Inside parseBlock")
         if Parser.tokenizer.next.type == 'OPEN_BRAC':
+            block = Block(None, [])
             while Parser.tokenizer.next.type != 'CLOSE_BRAC':
                 try:
                     Parser.tokenizer.selectNext()
                     res = Parser.parseStatement()
+                    print(f"RES: {res}")
+                    if res != None:
+                        block.children.append(res)
+                    else:
+                        print("Child is None")
                 except:
                     raise Exception("Closing brackets not found")
             print("Exiting parseBlock")
+        return block
 
     @staticmethod
     def parseStatement():
-        print("Inside parseStatement")
         if Parser.tokenizer.next.type == 'IDENTIFIER':
-            id = Parser.tokenizer.next.value
-            print(f"Identifier: {Parser.tokenizer.next.value}")
+            id = Identifier(Parser.tokenizer.next.value)
             Parser.tokenizer.selectNext()
-            if Parser.tokenizer.next.type == 'EQUAL':
-                print(f"Inside parseStatement: {Parser.tokenizer.next.value}")
+            if Parser.tokenizer.next.type == 'ASSIGNMENT':
                 Parser.tokenizer.selectNext()
-                print("Calling ASSIGNMENT node")
-                Parser.symbol_table.setValue(id, Parser.parseExpression())
                 res = Assignment('ASSIGNMENT', [id, Parser.parseExpression()])
-                print(f"Assignment res: {res.children[0], res.children[1]}")
-                print(f"Symbol table = {Parser.symbol_table.table}")
+
+                # Assignment node OK -> Why is SymbolTable not updating?
+                
+                if Parser.tokenizer.next.type != "SEMICOLON":
+                    raise Exception("Missing ;")
+                return res
+            if Parser.tokenizer.next.type == "SEMICOLON":
+                Parser.tokenizer.selectNext()
             
-        if Parser.tokenizer.next.type == 'PRINT':
+        elif Parser.tokenizer.next.type == 'PRINT':
             Parser.tokenizer.selectNext()
             if Parser.tokenizer.next.type == 'OPEN_PAR': 
-                res = Print('Print', [Parser.tokenizer.next.value])
-                if Parser.tokenizer.next.type != 'CLOSE_PAR': 
-                    raise Exception('Syntax Error (CLOSE_PAR)')
+                res = Print('Print', [Parser.parseExpression()])
+                return res
             else:
                 raise Exception('Syntax Error (OPEN_PAR MISSING)')
-        
-        if Parser.tokenizer.next.type == 'SEMICOLON':
+        elif Parser.tokenizer.next.type == 'SEMICOLON':
             NoOp(Parser.tokenizer.next.value)
 
 
@@ -153,18 +150,16 @@ class Parser:
             #print(f"UnOp -> PLUS: RES = {res}")
 
         elif Parser.tokenizer.next.type == 'IDENTIFIER':
-            if Parser.tokenizer.next.value in Parser.symbol_table.table.keys():
-                print("Symbol table: {Parser.symbol_table.table}")
-                res = IntVal(Parser.symbol_table.get(Parser.tokenizer.next.value))
-            else:
-                print("Identifier not in symbol_table")
-
-        elif Parser.tokenizer.next.type == 'PRINT':
+            res = Identifier(Parser.tokenizer.next.value)
             Parser.tokenizer.selectNext()
-            if Parser.tokenizer.next.type == 'OPEN_PAR':
-                res = Print('Print', [Parser.tokenizer.next.value])
-                if Parser.tokenizer.next.type != 'CLOSE_PAR':
-                    raise Exception(f"Expected CLOSE_PAR type after expression, but got {Parser.tokenizer.next.type}")
+
+        # elif Parser.tokenizer.next.type == 'PRINT':
+        #     Parser.tokenizer.selectNext()
+        #     if Parser.tokenizer.next.type == 'OPEN_PAR':
+        #         res = Print('Print', [Parser.tokenizer.next.value])
+        #         print("Type is PRINT: {res}")
+        #         if Parser.tokenizer.next.type != 'CLOSE_PAR':
+        #             raise Exception(f"Expected CLOSE_PAR type after expression, but got {Parser.tokenizer.next.type}")
 
         elif Parser.tokenizer.next.type == 'OPEN_PAR':
             Parser.open_par = True
@@ -184,8 +179,7 @@ class Parser:
 
     def run(code):
         Parser.tokenizer = Tokenizer(code)
-        Parser.symbol_table = SymbolTable()
-        print(Parser.symbol_table.table)
         Parser.tokenizer.selectNext()
         res = Parser.parseBlock()
-        return res
+        print(res.Evaluate())
+        return res            

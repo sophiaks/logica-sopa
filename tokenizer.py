@@ -38,9 +38,11 @@ class Tokenizer:
             if temp_next.isdigit():
                 print(f'Found INT ({temp_next})')
                 self.next = Token('INT', int(temp_next))
+
+            elif temp_next == "Print":
+                self.next = Token('PRINT', temp_next)
         
             elif bool(re.search(variable_pattern, temp_next)):
-                print(f'Found IDENTIFIER: {temp_next}')
                 self.next = Token('IDENTIFIER', temp_next)
 
             # elif re.fullmatch(variable_pattern, temp_next):
@@ -90,30 +92,30 @@ class Tokenizer:
         
         elif self.source[self.position] == "{":
             self.next = Token('OPEN_BRAC', "{")
-            print("Found OPEN_BRAC")
+            #print("Found OPEN_BRAC")
             self.position += 1
             return self.next
         
         elif self.source[self.position] == "}":
             self.next = Token('CLOSE_BRAC', "}")
-            print("Found CLOSE_BRAC")
+            #print("Found CLOSE_BRAC")
             self.position += 1
             return self.next   
 
         elif self.source[self.position] == ";":
             self.next = Token('SEMICOLON', ";")
-            print("Found SEMICOLON")
+            #print("Found SEMICOLON")
             self.position += 1
             return self.next   
 
         elif self.source[self.position] == "=":
-            self.next = Token('EQUAL', "=")
+            self.next = Token('ASSIGNMENT', "=")
             print("Found EQUAL")
             self.position += 1
             return self.next 
 
         elif self.source[self.position] == "Print":
-            print("Found PRINT")
+            print("Found PRINT-> tokenizer")
             self.next = Token('PRINT', "Print")
             self.position += 1
             return self.next 
