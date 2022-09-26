@@ -40,7 +40,7 @@ class Tokenizer:
                     break
             
             if temp_next.isdigit():
-                # print(f'Found INT ({temp_next})')
+                print(f'Found INT ({temp_next})')
                 self.next = Token('INT', int(temp_next))
 
             elif temp_next in reserved_wrds:
@@ -55,24 +55,24 @@ class Tokenizer:
 
         elif self.source[self.position] == '+':
             self.next = Token('PLUS', '+')
-            # print("Found PLUS")
+            print("Found PLUS")
             self.position += 1
             return self.next
 
         elif self.source[self.position] == '-':
             self.next = Token('MINUS', '-')
-            # print("Found MINUS")
+            print("Found MINUS")
             self.position += 1
             return self.next
 
         elif self.source[self.position] == '*':
             self.next = Token('MULT', '*')
-            # print("Found MULT")
+            print("Found MULT")
             self.position += 1
             return self.next
          
         elif self.source[self.position] == '/':
-            # print("Found DIV")
+            print("Found DIV")
             self.next = Token('DIV', '/')
             self.position += 1
             return self.next
@@ -113,11 +113,7 @@ class Tokenizer:
             self.position += 1
             return self.next 
 
-        elif self.source[self.position] == "Print":
-            # print("Found PRINT-> tokenizer")
-            self.next = Token('PRINT', "Print")
-            self.position += 1
-            return self.next 
+       
 
         else:
             raise Exception("Unrecognized token")

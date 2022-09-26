@@ -72,7 +72,7 @@ class Identifier(Node):
         return SymbolTable.getValue(self.value)
 
 class Print(Node):
-    def Evaluate(self):        
+    def Evaluate(self):
         a = self.children[0]
         print(a.Evaluate())
 
@@ -88,7 +88,7 @@ class NoOp(Node):
     
 class Block(Node):
     def Evaluate(self):
-        #print(f"Children: {self.children} -> {len(self.children)}")
+        print(f"Children: {self.children} -> {len(self.children)}")
         for child in self.children:
             # Evaluates chlidren in order
             #print(child)
