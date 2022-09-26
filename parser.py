@@ -60,7 +60,7 @@ class Parser:
 
 
             if Parser.tokenizer.next.type != 'CLOSE_BRAC':
-                print(Parser.tokenizer.next.type)
+                # print(Parser.tokenizer.next.type)
                 raise Exception("Closing brackets not found")
 
         #~~~ Consumes token ~~~#
@@ -76,6 +76,8 @@ class Parser:
             #~~~ Consumes token ~~~#
             Parser.tokenizer.selectNext()
 
+            
+
             if Parser.tokenizer.next.type == 'ASSIGNMENT':
                 #~~~ Consumes token ~~~#
                 Parser.tokenizer.selectNext()
@@ -87,11 +89,14 @@ class Parser:
                     
                 return res
 
+            else:
+                raise Exception(f"Invalid assignment for variable '{id.value}'")
+
         elif Parser.tokenizer.next.type == "SEMICOLON":
             Parser.tokenizer.selectNext()
             
         elif Parser.tokenizer.next.type == 'PRINT':
-            print("Found PRINT")
+            #print("Found PRINT")
             #~~~ Consumes token ~~~#
             Parser.tokenizer.selectNext()
             
@@ -113,11 +118,14 @@ class Parser:
                 Parser.tokenizer.selectNext()
                 
                 return res
+
             else:
                 raise Exception(f'Syntax Error: Expected OPEN_PAR but got {Parser.tokenizer.next.value}')
             
         if Parser.tokenizer.next.type == 'SEMICOLON':
             NoOp(Parser.tokenizer.next.value)
+            return
+        
 
     @staticmethod
     def parseExpression():
@@ -131,31 +139,31 @@ class Parser:
             if Parser.tokenizer.next.type == 'PLUS':
                 Parser.tokenizer.selectNext()
                 res = BinOp('PLUS', [res, Parser.parseTerm()])
-                print(f"BinOp returned ({res.value}, [{res.children[0].value, res.children[1].value}])")
+                # print(f"BinOp returned ({res.value}, [{res.children[0].value, res.children[1].value}])")
 
 
             elif Parser.tokenizer.next.type == 'MINUS':
                 Parser.tokenizer.selectNext()
                 res = BinOp('MINUS', [res, Parser.parseTerm()])
-                print(f"BinOp returned ({res.value}, [{res.children[0].value, res.children[1].value}])")
+                # print(f"BinOp returned ({res.value}, [{res.children[0].value, res.children[1].value}])")
 
         return res
         
     @staticmethod
     def parseTerm():
-        print(f"Inside parseTerm: {Parser.tokenizer.next.value}")
+        # print(f"Inside parseTerm: {Parser.tokenizer.next.value}")
         res = Parser.parseFactor()
 
         while Parser.tokenizer.next.type in ['MULT', 'DIV']:
             if Parser.tokenizer.next.type == 'MULT':
                 Parser.tokenizer.selectNext()
                 res = BinOp('MULT', [res, Parser.parseFactor()])
-                print(f"BinOp returned ({res.value}, [{res.children[0].value, res.children[1].value}])")
+                # print(f"BinOp returned ({res.value}, [{res.children[0].value, res.children[1].value}])")
 
             if Parser.tokenizer.next.type == 'DIV':
                 Parser.tokenizer.selectNext()
                 res = BinOp('DIV', [res, Parser.parseFactor()])
-                print(f"BinOp returned ({res.value}, [{res.children[0].value, res.children[1].value}])")
+                # print(f"BinOp returned ({res.value}, [{res.children[0].value, res.children[1].value}])")
 
         return res
 
@@ -171,13 +179,13 @@ class Parser:
         elif Parser.tokenizer.next.type == 'MINUS':
             Parser.tokenizer.selectNext()
             res = UnOp('MINUS', [Parser.parseFactor()])
-            print(f"UnOp -> MINUS: RES = {res.children[0].value}")
+            # print(f"UnOp -> MINUS: RES = {res.children[0].value}")
 
         elif Parser.tokenizer.next.type == 'PLUS':
             #print(f"Inside plus UnOP: {Parser.tokenizer.next.value}")
             Parser.tokenizer.selectNext()
             res = UnOp('PLUS', [Parser.parseFactor()])
-            print(f"UnOp -> PLUS: RES = {res.value}")
+            # print(f"UnOp -> PLUS: RES = {res.value}")
 
         elif Parser.tokenizer.next.type == 'IDENTIFIER':
             res = Identifier(Parser.tokenizer.next.value)

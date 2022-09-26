@@ -88,7 +88,7 @@ class NoOp(Node):
     
 class Block(Node):
     def Evaluate(self):
-        print(f"Children: {self.children} -> {len(self.children)}")
+        # print(f"Children: {self.children} -> {len(self.children)}")
         for child in self.children:
             # Evaluates chlidren in order
             #print(child)

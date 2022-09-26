@@ -1,5 +1,5 @@
 import re
-variable_pattern = "[A-Za-z]{1}[A-Za-z0-9_]*[\s]*$"
+variable_pattern = "^[A-Za-z]+[A-Za-z0-9_]*$"
 
 reserved_wrds = {
     'Print': 'PRINT'
@@ -38,16 +38,16 @@ class Tokenizer:
                 # If reached end of file
                 if self.position >= len(self.source):
                     break
-            
+                        
             if temp_next.isdigit():
-                print(f'Found INT ({temp_next})')
+                # print(f'Found INT ({temp_next})')
                 self.next = Token('INT', int(temp_next))
 
             elif temp_next in reserved_wrds:
-                # print(f"Found reserved word: {temp_next}")
                 self.next = Token(reserved_wrds[temp_next], temp_next)
             
             elif bool(re.search(variable_pattern, temp_next)):
+                # print(f"Valid variable: {temp_next}")
                 self.next = Token('IDENTIFIER', temp_next)
 
             else:
@@ -55,24 +55,24 @@ class Tokenizer:
 
         elif self.source[self.position] == '+':
             self.next = Token('PLUS', '+')
-            print("Found PLUS")
+            # print("Found PLUS")
             self.position += 1
             return self.next
 
         elif self.source[self.position] == '-':
             self.next = Token('MINUS', '-')
-            print("Found MINUS")
+            # print("Found MINUS")
             self.position += 1
             return self.next
 
         elif self.source[self.position] == '*':
             self.next = Token('MULT', '*')
-            print("Found MULT")
+            # print("Found MULT")
             self.position += 1
             return self.next
          
         elif self.source[self.position] == '/':
-            print("Found DIV")
+            # print("Found DIV")
             self.next = Token('DIV', '/')
             self.position += 1
             return self.next
