@@ -1,6 +1,10 @@
 import re
 variable_pattern = "[A-Za-z]{1}[A-Za-z0-9_]*[\s]*$"
 
+reserved_wrds = {
+    'Print': 'PRINT'
+}
+
 class Token:
     def __init__(self, type, value):
         self.type = type
@@ -36,80 +40,86 @@ class Tokenizer:
                     break
             
             if temp_next.isdigit():
-                #print(f'Found INT ({temp_next})')
+                # print(f'Found INT ({temp_next})')
                 self.next = Token('INT', int(temp_next))
 
-            elif temp_next == "Print":
-                self.next = Token('PRINT', temp_next)
-        
+            elif temp_next in reserved_wrds:
+                # print(f"Found reserved word: {temp_next}")
+                self.next = Token(reserved_wrds[temp_next], temp_next)
+            
             elif bool(re.search(variable_pattern, temp_next)):
                 self.next = Token('IDENTIFIER', temp_next)
 
+            else:
+                raise Exception("Invalid variable format")
 
         elif self.source[self.position] == '+':
             self.next = Token('PLUS', '+')
-            #print("Found PLUS")
+            # print("Found PLUS")
             self.position += 1
             return self.next
 
         elif self.source[self.position] == '-':
             self.next = Token('MINUS', '-')
-            #print("Found MINUS")
+            # print("Found MINUS")
             self.position += 1
             return self.next
 
         elif self.source[self.position] == '*':
             self.next = Token('MULT', '*')
-            #print("Found MULT")
+            # print("Found MULT")
             self.position += 1
             return self.next
          
         elif self.source[self.position] == '/':
-            #print("Found DIV")
+            # print("Found DIV")
             self.next = Token('DIV', '/')
             self.position += 1
             return self.next
 
         elif self.source[self.position] == '(':
             self.next = Token('OPEN_PAR', '(')
-            #print("Found OPEN_PAR")
+            # print("Found OPEN_PAR")
             self.position += 1
             return self.next
         
         elif self.source[self.position] == ")":
             self.next = Token('CLOSE_PAR', ")")
-            #print("Found CLOSE_PAR")
+            # print("Found CLOSE_PAR")
             self.position += 1
             return self.next   
         
         elif self.source[self.position] == "{":
             self.next = Token('OPEN_BRAC', "{")
-            #print("Found OPEN_BRAC")
+            # print("Found OPEN_BRAC")
             self.position += 1
             return self.next
         
         elif self.source[self.position] == "}":
             self.next = Token('CLOSE_BRAC', "}")
-            #print("Found CLOSE_BRAC")
+            # print("Found CLOSE_BRAC")
             self.position += 1
             return self.next   
 
         elif self.source[self.position] == ";":
             self.next = Token('SEMICOLON', ";")
-            #print("Found SEMICOLON")
+            # print("Found SEMICOLON")
             self.position += 1
             return self.next   
 
         elif self.source[self.position] == "=":
             self.next = Token('ASSIGNMENT', "=")
-            #print("Found EQUAL")
+            # print("Found EQUAL")
             self.position += 1
             return self.next 
 
         elif self.source[self.position] == "Print":
-            #print("Found PRINT-> tokenizer")
+            # print("Found PRINT-> tokenizer")
             self.next = Token('PRINT', "Print")
             self.position += 1
             return self.next 
+
+        else:
+            raise Exception("Unrecognized token")
 
     

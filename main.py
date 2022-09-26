@@ -1,4 +1,3 @@
-
 import sys
 from parser import Parser
 import re
@@ -15,14 +14,13 @@ char_dict = {
 
 
 def prePro(source):
-    clean_code = re.sub("\s*(\W)\s*",r"\1", source)
+    clean_code = re.sub(r"\s+","", source)
     no_comments_hashtag = re.sub('#.*', '', clean_code)
+
     no_comments = re.sub('//.*', '', no_comments_hashtag).strip()
     #print(f"No comments: {no_comments}")
     if no_comments != re.sub("\s*", '', no_comments):
         raise Exception("Between two numbers there must be an operand")
-    if len(no_comments) == 0:
-        raise Exception("Empty input")
     return no_comments
 
 filename = sys.argv[1]
@@ -32,10 +30,12 @@ code = ''
 for line in lines:
     code += prePro(line)
 
-#print(f"Code -> {code}")
+# print(f"Code -> {code}")
 
 # Running the program
 # RUN WILL CALL PARSEBLOCK
+if len(code) == 0:
+    raise Exception("Empty input")
 
 res = Parser.run(code)
 res.Evaluate()

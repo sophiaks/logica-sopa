@@ -46,13 +46,14 @@ class Parser:
         if Parser.tokenizer.next.type == 'OPEN_BRAC':
             block = Block(None, [])
             while Parser.tokenizer.next.type != 'CLOSE_BRAC':
-                try:
-                    Parser.tokenizer.selectNext()
-                    res = Parser.parseStatement()
-                    if res != None:
-                        #print(f"RES: {res}")
-                        block.children.append(res)
-                except:
+                
+                Parser.tokenizer.selectNext()
+                res = Parser.parseStatement()
+                if res != None:
+                    #print(f"RES: {res}")
+                    block.children.append(res)
+                
+                if Parser.tokenizer.next.type != 'CLOSE_BRAC':
                     raise Exception("Closing brackets not found")
             #print("Exiting parseBlock")
         return block
@@ -75,11 +76,16 @@ class Parser:
             
         elif Parser.tokenizer.next.type == 'PRINT':
             Parser.tokenizer.selectNext()
-            if Parser.tokenizer.next.type == 'OPEN_PAR': 
+            if Parser.tokenizer.next.type == 'OPEN_PAR':
                 res = Print('Print', [Parser.parseExpression()])
+                if Parser.tokenizer.next.type != 'SEMICOLON':
+                    raise Exception("Missing ';'")
+                else:
+                    Parser.tokenizer.selectNext()
                 return res
             else:
                 raise Exception('Syntax Error (OPEN_PAR MISSING)')
+            
         elif Parser.tokenizer.next.type == 'SEMICOLON':
             NoOp(Parser.tokenizer.next.value)
 
@@ -148,14 +154,6 @@ class Parser:
         elif Parser.tokenizer.next.type == 'IDENTIFIER':
             res = Identifier(Parser.tokenizer.next.value)
             Parser.tokenizer.selectNext()
-
-        # elif Parser.tokenizer.next.type == 'PRINT':
-        #     Parser.tokenizer.selectNext()
-        #     if Parser.tokenizer.next.type == 'OPEN_PAR':
-        #         res = Print('Print', [Parser.tokenizer.next.value])
-        #         print("Type is PRINT: {res}")
-        #         if Parser.tokenizer.next.type != 'CLOSE_PAR':
-        #             raise Exception(f"Expected CLOSE_PAR type after expression, but got {Parser.tokenizer.next.type}")
 
         elif Parser.tokenizer.next.type == 'OPEN_PAR':
             Parser.open_par = True
