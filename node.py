@@ -23,6 +23,46 @@ class BinOp(Node):
             res = a.Evaluate() + b.Evaluate()
             return res
 
+        if self.value == 'EQUAL':
+            #print(f"On BinOp: value = {self.value}; children = {self.children}")
+            a = self.children[0]
+            b = self.children[1]            
+            # Recursion
+            res = a.Evaluate() == b.Evaluate()
+            return res
+
+        if self.value == 'GREATER_THAN':
+            #print(f"On BinOp: value = {self.value}; children = {self.children}")
+            a = self.children[0]
+            b = self.children[1]            
+            # Recursion
+            res = a.Evaluate() > b.Evaluate()
+            return res
+
+        if self.value == 'LESS_THAN':
+            #print(f"On BinOp: value = {self.value}; children = {self.children}")
+            a = self.children[0]
+            b = self.children[1]            
+            # Recursion
+            res = a.Evaluate() < b.Evaluate()
+            return res
+        
+        if self.value == 'AND':
+            #print(f"On BinOp: value = {self.value}; children = {self.children}")
+            a = self.children[0]
+            b = self.children[1]            
+            # Recursion
+            res = a.Evaluate() and b.Evaluate()
+            return res
+
+        if self.value == 'OR':
+            #print(f"On BinOp: value = {self.value}; children = {self.children}")
+            a = self.children[0]
+            b = self.children[1]            
+            # Recursion
+            res = a.Evaluate() or b.Evaluate()
+            return res
+
         if self.value == 'MINUS':
             #print(f"On BinOp: value = {self.value}; children = {self.children}")
             a = self.children[0]
@@ -59,6 +99,10 @@ class UnOp(Node):
             a = self.children[0]
             # Recursion
             return a.Evaluate()
+        if self.value == 'NOT':
+            a = self.children[0]
+            # Recursion
+            return not(a.Evaluate())
     
 class Assignment(Node):
     def Evaluate(self):
@@ -75,6 +119,31 @@ class Print(Node):
     def Evaluate(self):
         a = self.children[0]
         print(a.Evaluate())
+
+class If(Node):
+    def Evaluate(self):
+        a = self.children[0]
+        b = self.children[1]
+        if (a.Evaluate()):
+            return b.Evaluate()
+        else:
+            if (len(self.children) == 3):
+                c = self.children[2]
+                return c.Evaluate()
+            else:
+                pass
+
+class While(Node):
+    def Evaluate(self):
+        a = self.children[0]
+        b = self.children[1]
+        while (a.Evaluate()):
+            # Possível problema!
+            return b.Evaluate()
+
+class Read(Node):
+    def Evaluate(self):
+        return int(input())
 
 class IntVal(Node):
     def Evaluate(self):

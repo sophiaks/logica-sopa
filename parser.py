@@ -1,8 +1,7 @@
 from symtable import Symbol
-from xml.dom.minidom import Identified
 from symbolTable import SymbolTable
 from tokenizer import Tokenizer
-from node import BinOp, UnOp, NoOp, IntVal, Assignment, Print, Block, Identifier
+from node import BinOp, UnOp, NoOp, IntVal, Assignment, Print, Block, Identifier, Read
 
 reserved_words = ['if', 'else', 'Print', 'function']
 
@@ -79,13 +78,11 @@ class Parser:
             #~~~ Consumes token ~~~#
             Parser.tokenizer.selectNext()
 
-            
-
             if Parser.tokenizer.next.type == 'ASSIGNMENT':
                 #~~~ Consumes token ~~~#
                 Parser.tokenizer.selectNext()
 
-                res = Assignment('ASSIGNMENT', [id, Parser.parseExpression()])
+                res = Assignment('ASSIGNMENT', [id, Parser.parseRelExpression()])
 
                 if Parser.tokenizer.next.type != "SEMICOLON":
                     raise Exception("Missing ;")
@@ -98,6 +95,28 @@ class Parser:
         elif Parser.tokenizer.next.type == "SEMICOLON":
             Parser.tokenizer.selectNext()
             
+        elif Parser.tokenizer.next.type == "WHILE":
+            Parser.tokenizer.selectNext()
+            if Parser.tokenizer.next.type == 'OPEN_PAR':
+                res = Parser.parseRelExpression()
+                Parser.tokenizer.selectNext()
+            if Parser.tokenizer.next.type != 'CLOSE_PAR':
+                raise Exception("Missing )")
+            while res:
+                return Parser.parseStatement()
+
+        elif Parser.tokenizer.next.type == "IF":
+            Parser.tokenizer.selectNext()
+            if Parser.tokenizer.next.type == 'OPEN_PAR':
+                res = Parser.parseRelExpression()
+                Parser.tokenizer.selectNext()
+            if Parser.tokenizer.next.type != 'CLOSE_PAR':
+                print(Parser.tokenizer.next.type)
+                raise Exception("Missing )")
+            if res:
+                return Parser.parseStatement()
+
+
         elif Parser.tokenizer.next.type == 'PRINT':
             #print("Found PRINT")
             #~~~ Consumes token ~~~#
@@ -107,7 +126,7 @@ class Parser:
                 #~~~ Consumes token ~~~#
                 Parser.tokenizer.selectNext()
 
-                res = Print('Print', [Parser.parseExpression()])
+                res = Print('Print', [Parser.parseRelExpression()])
                 if Parser.tokenizer.next.type != 'CLOSE_PAR':
                     raise Exception("Missing ')'")
                 
@@ -124,11 +143,33 @@ class Parser:
 
             else:
                 raise Exception(f'Syntax Error: Expected OPEN_PAR but got {Parser.tokenizer.next.value}')
-            
+        
+        else:
+            return Parser.parseBlock()
+
         if Parser.tokenizer.next.type == 'SEMICOLON':
             NoOp(Parser.tokenizer.next.value)
             return
-        
+
+    @staticmethod
+    def parseRelExpression():
+        res = Parser.parseExpression()
+
+        while Parser.tokenizer.next.type in ['EQUAL', 'GREATER_THAN', 'LESS_THAN']:
+
+            if Parser.tokenizer.next.type == 'GREATER_THAN':
+                Parser.tokenizer.selectNext()
+                res = BinOp('GREATER_THAN', [res, Parser.parseExpression()])
+
+            elif Parser.tokenizer.next.type == 'LESS_THAN':
+                Parser.tokenizer.selectNext()
+                res = BinOp('LESS_THAN', [res, Parser.parseExpression()])
+
+            elif Parser.tokenizer.next.type == 'EQUAL':
+                Parser.tokenizer.selectNext()
+                res = BinOp('EQUAL', [res, Parser.parseExpression()])
+
+        return res
 
     @staticmethod
     def parseExpression():
@@ -137,7 +178,7 @@ class Parser:
         #print(f"res from parseTerm is {res.value, res.children}")
         #print(f"Next: {Parser.tokenizer.next.value}")
 
-        while Parser.tokenizer.next.type in ['MINUS', 'PLUS']:
+        while Parser.tokenizer.next.type in ['MINUS', 'PLUS', 'OR']:
 
             if Parser.tokenizer.next.type == 'PLUS':
                 Parser.tokenizer.selectNext()
@@ -150,6 +191,12 @@ class Parser:
                 res = BinOp('MINUS', [res, Parser.parseTerm()])
                 # print(f"BinOp returned ({res.value}, [{res.children[0].value, res.children[1].value}])")
 
+            elif Parser.tokenizer.next.type == 'OR':
+                Parser.tokenizer.selectNext()
+                res = BinOp('OR', [res, Parser.parseTerm()])
+                # print(f"BinOp returned ({res.value}, [{res.children[0].value, res.children[1].value}])")
+
+
         return res
         
     @staticmethod
@@ -157,7 +204,7 @@ class Parser:
         # print(f"Inside parseTerm: {Parser.tokenizer.next.value}")
         res = Parser.parseFactor()
 
-        while Parser.tokenizer.next.type in ['MULT', 'DIV']:
+        while Parser.tokenizer.next.type in ['MULT', 'DIV', 'AND']:
             if Parser.tokenizer.next.type == 'MULT':
                 Parser.tokenizer.selectNext()
                 res = BinOp('MULT', [res, Parser.parseFactor()])
@@ -168,6 +215,12 @@ class Parser:
                 res = BinOp('DIV', [res, Parser.parseFactor()])
                 # print(f"BinOp returned ({res.value}, [{res.children[0].value, res.children[1].value}])")
 
+            if Parser.tokenizer.next.type == 'AND':
+                Parser.tokenizer.selectNext()
+                res = BinOp('AND', [res, Parser.parseFactor()])
+                # print(f"BinOp returned ({res.value}, [{res.children[0].value, res.children[1].value}])")
+
+
         return res
 
     @staticmethod
@@ -177,7 +230,7 @@ class Parser:
             res = IntVal(Parser.tokenizer.next.value)
             Parser.tokenizer.selectNext()
             
-            #print(f"Next: {Parser.tokenizer.next.value}, pos = {Parser.tokenizer.position}")
+        ## UNARY OPERATIONS ##
 
         elif Parser.tokenizer.next.type == 'MINUS':
             Parser.tokenizer.selectNext()
@@ -190,6 +243,14 @@ class Parser:
             res = UnOp('PLUS', [Parser.parseFactor()])
             # print(f"UnOp -> PLUS: RES = {res.value}")
 
+        elif Parser.tokenizer.next.type == 'NOT':
+            #print(f"Inside plus UnOP: {Parser.tokenizer.next.value}")
+            Parser.tokenizer.selectNext()
+            res = UnOp('NOT', [Parser.parseFactor()])
+            # print(f"UnOp -> PLUS: RES = {res.value}")
+
+        ## BINARY OPERATIONS ##
+
         elif Parser.tokenizer.next.type == 'IDENTIFIER':
             res = Identifier(Parser.tokenizer.next.value)
             Parser.tokenizer.selectNext()
@@ -197,13 +258,25 @@ class Parser:
         elif Parser.tokenizer.next.type == 'OPEN_PAR':
             Parser.open_par = True
             Parser.tokenizer.selectNext()
-            res = Parser.parseExpression()
+            res = Parser.parseRelExpression()
 
             if Parser.tokenizer.next.type != 'CLOSE_PAR':                
                 raise Exception(f"Expected ')' but got {Parser.tokenizer.next.value}, {Parser.tokenizer.next.type}")
             
             Parser.open_par = False
             Parser.tokenizer.selectNext()
+
+        ## READ OPERATIONS ##
+        elif Parser.tokenizer.next.type == 'READ':
+            res = Read('READ')
+            Parser.tokenizer.selectNext()
+            if Parser.tokenizer.next.type != 'OPEN_PAR':
+                raise Exception("Missing (")
+            Parser.tokenizer.selectNext()
+            if Parser.tokenizer.next.type != 'CLOSE_PAR':
+                raise Exception("Missing )")
+            Parser.tokenizer.selectNext()
+            return res
         
         else:
             raise Exception(f"Expected INT, or unary, but got {Parser.tokenizer.next.type} type, with {Parser.tokenizer.next.value} value")

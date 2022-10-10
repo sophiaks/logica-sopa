@@ -2,7 +2,10 @@ import re
 variable_pattern = "^[A-Za-z]+[A-Za-z0-9_]*$"
 
 reserved_wrds = {
-    'Print': 'PRINT'
+    'Print': 'PRINT',
+    'while': 'WHILE',
+    'if': 'IF',
+    'Read': 'READ'
 }
 
 class Token:
@@ -47,11 +50,49 @@ class Tokenizer:
                 self.next = Token(reserved_wrds[temp_next], temp_next)
             
             elif bool(re.search(variable_pattern, temp_next)):
-                # print(f"Valid variable: {temp_next}")
+                print(f"Valid variable: {temp_next}")
                 self.next = Token('IDENTIFIER', temp_next)
-
             else:
+                print(f"Valid invariable: {temp_next}")
                 raise Exception("Invalid variable format")
+
+        elif self.source[self.position] == '&':
+            self.position += 1
+            if self.source[self.position] == '&':
+                self.next = Token('AND', '&&')
+                self.position += 1
+            # print("Found AND")
+            else:
+                raise Exception("Token not recognized: &")
+            return self.next
+        
+        elif self.source[self.position] == '|':
+            # print("Found OR")
+            self.position += 1
+            if self.source[self.position] == '|':
+                 self.next = Token('OR', '||')
+            else:
+                raise Exception("Token not recognized: |")
+            return self.next
+
+        elif self.source[self.position] == '>':
+            self.next = Token('GREATER_THAN', '>')
+            # print("Found NOT")
+            self.position += 1
+            return self.next
+
+        elif self.source[self.position] == '<':
+            self.next = Token('LESS_THAN', '<')
+            # print("Found NOT")
+            self.position += 1
+            return self.next
+        
+        elif self.source[self.position] == '!':
+            self.next = Token('NOT', '!')
+            # print("Found NOT")
+            self.position += 1
+            return self.next
+ 
 
         elif self.source[self.position] == '+':
             self.next = Token('PLUS', '+')
@@ -111,6 +152,9 @@ class Tokenizer:
             self.next = Token('ASSIGNMENT', "=")
             # print("Found EQUAL")
             self.position += 1
+            if self.source[self.position] == "=":
+                self.next = Token('EQUAL', "==")
+                self.position += 1
             return self.next 
 
        
