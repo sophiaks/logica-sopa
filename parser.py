@@ -12,20 +12,15 @@ class Parser:
 
     @staticmethod
     def parseBlock():
-        block = None
-        #print("Inside parseBlock")
+        block = Block(None, [])
         if Parser.tokenizer.next.type == 'OPEN_BRAC':
+            
             #~~~ Consumes token ~~~#
             Parser.tokenizer.selectNext()
 
-            if Parser.tokenizer.next.type == 'INT':
-                raise Exception("Variable names must not start with an INT type")
-
-            block = Block(None, [])
-
             while Parser.tokenizer.next.type != 'CLOSE_BRAC':
                 res = Parser.parseStatement()
-                if res != None: # Might be inutil
+                if res != None: # Might be useless
                     block.children.append(res)
                 
                 if Parser.tokenizer.next.type == 'EOF':
@@ -33,16 +28,16 @@ class Parser:
             
             #~~~ Consumes closing brackets token ~~~#
             Parser.tokenizer.selectNext()
-    
-        # if Parser.tokenizer.next.type != 'EOF':
-        #             raise Exception(f"Expected EOF, but got {Parser.tokenizer.next.type}")
-
+        
         return block
 
     @staticmethod
     def parseStatement():
+        if Parser.tokenizer.next.type == 'INT':
+            raise Exception("Statements must not start with an INT type")
+
         if Parser.tokenizer.next.type == 'OPEN_BRAC':
-            Parser.parseBlock()
+            return Parser.parseBlock()
 
         if Parser.tokenizer.next.type == 'IDENTIFIER':
             id = Identifier(Parser.tokenizer.next.value)
@@ -60,6 +55,8 @@ class Parser:
                     raise Exception("Missing ;")
                     
                 return res
+
+        
 
             else:
                 raise Exception(f"Invalid assignment for variable '{id.value}'")
@@ -106,9 +103,8 @@ class Parser:
             return res
             
 
-
         elif Parser.tokenizer.next.type == 'PRINT':
-            #print("Found PRINT")
+            # print("Found PRINT")
             #~~~ Consumes token ~~~#
             Parser.tokenizer.selectNext()
             

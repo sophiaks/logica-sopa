@@ -36,6 +36,9 @@ class Tokenizer:
         if (self.source[self.position]).isdigit() or (self.source[self.position]).isalpha() or (self.source[self.position]) == '_':
             temp_next = ''
             while (self.source[self.position]).isdigit() or (self.source[self.position]).isalpha() or (self.source[self.position]) == '_':
+                if temp_next in reserved_wrds:
+                    self.next = temp_next
+                    break
                 temp_next += self.source[self.position]
                 # concatenates number
                 self.position += 1
@@ -49,7 +52,7 @@ class Tokenizer:
 
             elif temp_next in reserved_wrds:
                 self.next = Token(reserved_wrds[temp_next], temp_next)
-            
+        
             elif bool(re.search(variable_pattern, temp_next)):
                 self.next = Token('IDENTIFIER', temp_next)
             else:

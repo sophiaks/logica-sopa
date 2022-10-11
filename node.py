@@ -146,3 +146,4 @@ class Block(Node):
         for child in self.children:
             # Evaluates chlidren in order
             child.Evaluate()
+            
