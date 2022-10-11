@@ -66,6 +66,8 @@ class Parser:
 
         elif Parser.tokenizer.next.type == "SEMICOLON":
             Parser.tokenizer.selectNext()
+            res = NoOp(Parser.tokenizer.next.value)
+            return res
             
         elif Parser.tokenizer.next.type == "WHILE":
             Parser.tokenizer.selectNext()
@@ -78,7 +80,6 @@ class Parser:
             if Parser.tokenizer.next.type == 'OPEN_BRAC':
                 resStatement = Parser.parseBlock()
             else:
-                print(Parser.tokenizer.next.type)
                 resStatement = Parser.parseStatement()
             res = While('WHILE', [resCondition, resStatement])
             return res
@@ -134,9 +135,7 @@ class Parser:
         else:
             return Parser.parseBlock()
 
-        if Parser.tokenizer.next.type == 'SEMICOLON':
-            NoOp(Parser.tokenizer.next.value)
-            return
+        
 
     @staticmethod
     def parseRelExpression():
