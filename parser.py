@@ -39,6 +39,9 @@ class Parser:
 
         #~~~ Consumes token ~~~#
         Parser.tokenizer.selectNext()
+    
+        if Parser.tokenizer.next.type != 'EOF':
+                    raise Exception(f"Expected EOF type, but got {Parser.tokenizer.next.type}")
 
         return block
 
@@ -101,6 +104,8 @@ class Parser:
                 res = If('IF', [resCondition, resStatement, Parser.parseStatement()])
             else:
                 res = If('IF', [resCondition, resStatement])
+            if Parser.tokenizer.next.type == "ELSE":
+                raise Exception("If clause has wrong sytntax")
             return res
             
 
