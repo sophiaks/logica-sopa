@@ -13,7 +13,7 @@
 #     Print(x);
 # }
 x = 0;
-while (x < 3) {
+while (!x && 1) {
     Print(x);
     x = x + 1;
 }
