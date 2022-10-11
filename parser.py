@@ -56,8 +56,6 @@ class Parser:
                     
                 return res
 
-        
-
             else:
                 raise Exception(f"Invalid assignment for variable '{id.value}'")
 
@@ -83,21 +81,36 @@ class Parser:
 
         elif Parser.tokenizer.next.type == "IF":
             Parser.tokenizer.selectNext()
+
+            # Condition is mandatory
             if Parser.tokenizer.next.type == 'OPEN_PAR':
                 Parser.tokenizer.selectNext()
                 resCondition = Parser.parseRelExpression()
-            if Parser.tokenizer.next.type != 'CLOSE_PAR':
-                raise Exception("Missing )")
-            Parser.tokenizer.selectNext()
-            if Parser.tokenizer.next.type == 'OPEN_BRAC':
-                resStatement = Parser.parseBlock()
-            else:
-                resStatement = Parser.parseStatement()
-            if Parser.tokenizer.next.type == "ELSE":
+                if Parser.tokenizer.next.type != 'CLOSE_PAR':
+                    raise Exception("Missing )")
+                # ~~~ Consumes CLOSE_PAR token ~~~ #
                 Parser.tokenizer.selectNext()
-                res = If('IF', [resCondition, resStatement, Parser.parseStatement()])
-            else:
-                res = If('IF', [resCondition, resStatement])
+
+                if Parser.tokenizer.next.type == 'OPEN_BRAC':
+                # Block if clause
+                    resStatement = Parser.parseBlock()
+                # Empty if clause
+                elif Parser.tokenizer.next.type == "ELSE":
+                    raise Exception("Empty if clause")
+                # One-line if clause
+                else:
+                    resStatement = Parser.parseStatement()
+
+                
+                if Parser.tokenizer.next.type == "ELSE":
+                    Parser.tokenizer.selectNext()
+                    # If-else clause
+                    res = If('IF', [resCondition, resStatement, Parser.parseStatement()])
+                else:
+                    # No else
+                    res = If('IF', [resCondition, resStatement])
+            
+            # More than one else
             if Parser.tokenizer.next.type == "ELSE":
                 raise Exception("If clause has wrong sytntax")
             return res
