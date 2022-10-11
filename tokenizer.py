@@ -66,10 +66,10 @@ class Tokenizer:
             return self.next
         
         elif self.source[self.position] == '|':
-            # print("Found OR")
             self.position += 1
             if self.source[self.position] == '|':
-                 self.next = Token('OR', '||')
+                self.next = Token('OR', '||')
+                self.position += 1
             else:
                 raise Exception("Token not recognized: |")
             return self.next

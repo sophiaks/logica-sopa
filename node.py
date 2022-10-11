@@ -16,7 +16,6 @@ class Node:
 class BinOp(Node):
     def Evaluate(self):
         if self.value == 'PLUS':
-            # print(f"On BinOp: value = {self.value}; children = {self.children}")
             a = self.children[0]
             b = self.children[1]            
             # Recursion
@@ -24,16 +23,13 @@ class BinOp(Node):
             return res
 
         if self.value == 'EQUAL':
-            # print(f"On BinOp: value = {self.value}; children = {self.children}")
             a = self.children[0]
             b = self.children[1]            
             # Recursion
             res = (a.Evaluate() == b.Evaluate())
-            print(f"Res from == is {res}")
             return res
 
         if self.value == 'GREATER_THAN':
-            # print(f"On BinOp: value = {self.value}; children = {self.children}")
             a = self.children[0]
             b = self.children[1]            
             # Recursion
@@ -41,7 +37,6 @@ class BinOp(Node):
             return res
 
         if self.value == 'LESS_THAN':
-            # print(f"On BinOp: value = {self.value}; children = {self.children}")
             a = self.children[0]
             b = self.children[1]            
             # Recursion
@@ -49,7 +44,6 @@ class BinOp(Node):
             return res
         
         if self.value == 'AND':
-            # print(f"On BinOp: value = {self.value}; children = {self.children}")
             a = self.children[0]
             b = self.children[1]            
             # Recursion
@@ -57,7 +51,6 @@ class BinOp(Node):
             return res
 
         if self.value == 'OR':
-            # print(f"On BinOp: value = {self.value}; children = {self.children}")
             a = self.children[0]
             b = self.children[1]            
             # Recursion
@@ -65,7 +58,6 @@ class BinOp(Node):
             return res
 
         if self.value == 'MINUS':
-            # print(f"On BinOp: value = {self.value}; children = {self.children}")
             a = self.children[0]
             b = self.children[1]
             # Recursion
@@ -73,7 +65,6 @@ class BinOp(Node):
             return res
 
         if self.value == 'MULT':
-            # print(f"On BinOp: value = {self.value}; children = {self.children}")
             a = self.children[0]
             b = self.children[1]
             # Recursion
@@ -81,25 +72,19 @@ class BinOp(Node):
             return res
 
         if self.value == 'DIV':
-            # print(f"On BinOp: value = {self.value}; children = {self.children}")
             a = self.children[0]
             b = self.children[1]
             # Recursion
             res = a.Evaluate() // b.Evaluate()
             return res
 
-        else:
-            print("Han?")
-
 class UnOp(Node):
     def Evaluate(self):
         if self.value == 'MINUS':
-            # print(f"On UnOp: value = {self.value}; children = {self.children}")
             a = self.children[0]
             # Recursion
             return -a.Evaluate()
         if self.value == 'PLUS':
-            # print(f"On UnOp: value = {self.value}; children = {self.children}")
             a = self.children[0]
             # Recursion
             return a.Evaluate()
@@ -125,7 +110,6 @@ class Print(Node):
         print(a.Evaluate())
 
 class If(Node):
-    # print("Inside If Node")
     def Evaluate(self):
         a = self.children[0]
         b = self.children[1]
@@ -151,18 +135,14 @@ class Read(Node):
 
 class IntVal(Node):
     def Evaluate(self):
-        #print(f"On IntVal: value = {self.value}; children = {self.children}")
         return self.value
 
 class NoOp(Node):
     def Evaluate(self):
-        #print(f"On NoOp: value = {self.value}; children = {self.children}")
         pass
     
 class Block(Node):
     def Evaluate(self):
-        # print(f"Children: {self.children} -> {len(self.children)}")
         for child in self.children:
             # Evaluates chlidren in order
-            #print(child)
             child.Evaluate()
