@@ -24,29 +24,26 @@ class Parser:
             block = Block(None, [])
 
             while Parser.tokenizer.next.type != 'CLOSE_BRAC':
-               
                 res = Parser.parseStatement()
-                if res != None:
+                if res != None: # Might be inutil
                     block.children.append(res)
                 
                 if Parser.tokenizer.next.type == 'EOF':
                     raise Exception("Closing brackets not found")
-
-
-            if Parser.tokenizer.next.type != 'CLOSE_BRAC':
-                print(Parser.tokenizer.next.type)
-                raise Exception("Closing brackets not found")
-
-        #~~~ Consumes token ~~~#
-        Parser.tokenizer.selectNext()
+            
+            #~~~ Consumes closing brackets token ~~~#
+            Parser.tokenizer.selectNext()
     
-        if Parser.tokenizer.next.type != 'EOF':
-                    raise Exception(f"Expected EOF type, but got {Parser.tokenizer.next.type}")
+        # if Parser.tokenizer.next.type != 'EOF':
+        #             raise Exception(f"Expected EOF, but got {Parser.tokenizer.next.type}")
 
         return block
 
     @staticmethod
     def parseStatement():
+        if Parser.tokenizer.next.type == 'OPEN_BRAC':
+            Parser.parseBlock()
+
         if Parser.tokenizer.next.type == 'IDENTIFIER':
             id = Identifier(Parser.tokenizer.next.value)
             
