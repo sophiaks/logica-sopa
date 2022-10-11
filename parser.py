@@ -1,38 +1,9 @@
 from symtable import Symbol
 from symbolTable import SymbolTable
 from tokenizer import Tokenizer
-from node import BinOp, UnOp, NoOp, IntVal, Assignment, Print, Block, Identifier, Read
+from node import BinOp, UnOp, NoOp, IntVal, Assignment, Print, Block, Identifier, Read, If, While
 
 reserved_words = ['if', 'else', 'Print', 'function']
-
-# todo parser retorna um no
-# chamada de block coloca como filho no block!!
-
-# TODO:
-#1: mudar parseFactor()
-#2: impoementar o parseBlock
-#3: ikmplementar parseStatement
-#4: Trocar o run (comeca no parseBLock)
-
-# Evaluate do block -> execute na ordem correta
-# para cada filho em children -> evaluate
-# filho do block não dá return
-
-# print -> nó do print
-# evaluate do filho 0 e dá print no filho 0
-
-# = -> nó do tipo assignment -> esquerdo o identifier e direito expression
-#identifier = filho 0
-#= - filho 1 
-#expression filho 2
-
-# assignment nao da evaluate no filho zero - so no da direita
-# valor do filho 0 recebe 3 (valor do filho 1) na symbol table -> x = 3
-
-# qnd passa no parseFActor no identifier - retorna um nó identifier!
-
-# x = 3 -> evaluate do 3 e tasca na symbol table
-# y = x + 3 -> evaluate do x -> get da symbolTable
 
 class Parser:
     tokenizer = None
@@ -41,6 +12,7 @@ class Parser:
 
     @staticmethod
     def parseBlock():
+        block = None
         #print("Inside parseBlock")
         if Parser.tokenizer.next.type == 'OPEN_BRAC':
             #~~~ Consumes token ~~~#
@@ -62,7 +34,7 @@ class Parser:
 
 
             if Parser.tokenizer.next.type != 'CLOSE_BRAC':
-                # print(Parser.tokenizer.next.type)
+                print(Parser.tokenizer.next.type)
                 raise Exception("Closing brackets not found")
 
         #~~~ Consumes token ~~~#
@@ -98,23 +70,38 @@ class Parser:
         elif Parser.tokenizer.next.type == "WHILE":
             Parser.tokenizer.selectNext()
             if Parser.tokenizer.next.type == 'OPEN_PAR':
-                res = Parser.parseRelExpression()
                 Parser.tokenizer.selectNext()
+                resCondition = Parser.parseRelExpression()
             if Parser.tokenizer.next.type != 'CLOSE_PAR':
                 raise Exception("Missing )")
-            while res:
-                return Parser.parseStatement()
+            Parser.tokenizer.selectNext()
+            if Parser.tokenizer.next.type == 'OPEN_BRAC':
+                resStatement = Parser.parseBlock()
+            else:
+                print(Parser.tokenizer.next.type)
+                resStatement = Parser.parseStatement()
+            res = While('WHILE', [resCondition, resStatement])
+            return res
 
         elif Parser.tokenizer.next.type == "IF":
             Parser.tokenizer.selectNext()
             if Parser.tokenizer.next.type == 'OPEN_PAR':
-                res = Parser.parseRelExpression()
                 Parser.tokenizer.selectNext()
+                resCondition = Parser.parseRelExpression()
             if Parser.tokenizer.next.type != 'CLOSE_PAR':
-                print(Parser.tokenizer.next.type)
                 raise Exception("Missing )")
-            if res:
-                return Parser.parseStatement()
+            Parser.tokenizer.selectNext()
+            if Parser.tokenizer.next.type == 'OPEN_BRAC':
+                resStatement = Parser.parseBlock()
+            else:
+                resStatement = Parser.parseStatement()
+            if Parser.tokenizer.next.type == "ELSE":
+                Parser.tokenizer.selectNext()
+                res = If('IF', [resCondition, resStatement, Parser.parseStatement()])
+            else:
+                res = If('IF', [resCondition, resStatement])
+            return res
+            
 
 
         elif Parser.tokenizer.next.type == 'PRINT':
@@ -153,6 +140,7 @@ class Parser:
 
     @staticmethod
     def parseRelExpression():
+
         res = Parser.parseExpression()
 
         while Parser.tokenizer.next.type in ['EQUAL', 'GREATER_THAN', 'LESS_THAN']:

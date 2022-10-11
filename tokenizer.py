@@ -5,6 +5,7 @@ reserved_wrds = {
     'Print': 'PRINT',
     'while': 'WHILE',
     'if': 'IF',
+    'else': 'ELSE',
     'Read': 'READ'
 }
 
@@ -50,10 +51,8 @@ class Tokenizer:
                 self.next = Token(reserved_wrds[temp_next], temp_next)
             
             elif bool(re.search(variable_pattern, temp_next)):
-                print(f"Valid variable: {temp_next}")
                 self.next = Token('IDENTIFIER', temp_next)
             else:
-                print(f"Valid invariable: {temp_next}")
                 raise Exception("Invalid variable format")
 
         elif self.source[self.position] == '&':
