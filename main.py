@@ -1,7 +1,6 @@
 import sys
-from parser import Parser
 import re
-
+from parser import Parser
 
 char_dict = {
     'PLUS': '+',

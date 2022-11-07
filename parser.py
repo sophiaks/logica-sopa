@@ -1,8 +1,7 @@
-from symtable import Symbol
-from symbolTable import SymbolTable
+from tokenize import String
 from tokenizer import Tokenizer
-from node import BinOp, UnOp, NoOp, IntVal, Assignment, Print, Block, Identifier, Read, If, While
-
+from node import BinOp, UnOp, NoOp, IntVal, Assignment, Print, Block, Identifier, Read, If, VarDec, While, String
+from aux import mprint
 reserved_words = ['if', 'else', 'Print', 'function']
 
 class Parser:
@@ -14,7 +13,7 @@ class Parser:
     def parseBlock():
         block = Block(None, [])
         if Parser.tokenizer.next.type == 'OPEN_BRAC':
-            
+            mprint("Found OpenBrac")
             #~~~ Consumes token ~~~#
             Parser.tokenizer.selectNext()
 
@@ -36,8 +35,13 @@ class Parser:
         if Parser.tokenizer.next.type == 'INT':
             raise Exception("Statements must not start with an INT type")
 
+        ##      BLOCK       ##
+
         if Parser.tokenizer.next.type == 'OPEN_BRAC':
             return Parser.parseBlock()
+
+        
+        ##      ASSIGNMENT       ##
 
         if Parser.tokenizer.next.type == 'IDENTIFIER':
             id = Identifier(Parser.tokenizer.next.value)
@@ -79,6 +83,8 @@ class Parser:
             res = While('WHILE', [resCondition, resStatement])
             return res
 
+        ##      IF       ##
+
         elif Parser.tokenizer.next.type == "IF":
             Parser.tokenizer.selectNext()
 
@@ -115,9 +121,61 @@ class Parser:
                 raise Exception("If clause has wrong sytntax")
             return res
             
+        ###     VARIABLE DECLARATION     ###
 
+        elif Parser.tokenizer.next.type == 'VAR':
+            #~~~ Consumes token ~~~#
+            Parser.tokenizer.selectNext()
+
+            if Parser.tokenizer.next.type == 'IDENTIFIER':
+                var_dec_list = [Parser.tokenizer.next.value]
+                res_list = []
+                #~~~ Consumes token ~~~#
+                Parser.tokenizer.selectNext()
+
+                while Parser.tokenizer.next.type == 'COMMA':
+                    
+                    #~~~ Consumes token ~~~#
+                    Parser.tokenizer.selectNext()
+                    var_dec_list.append(Parser.tokenizer.next.value)
+                    #~~~ Consumes token ~~~#
+                    Parser.tokenizer.selectNext()
+                
+                if Parser.tokenizer.next.type == 'COLON':
+                    #~~~ Consumes token ~~~#
+                    Parser.tokenizer.selectNext()
+
+                    if Parser.tokenizer.next.type == 'STRING':
+                        #~~~ Consumes token ~~~#
+                        Parser.tokenizer.selectNext()
+                        mprint("Found STRING type")
+                        for var in var_dec_list:
+                            # Creates IntVal where default value is None (might be better to do this inside SymTable)
+                            res = String(var, None)
+                            res_list.append(res)
+
+                    if Parser.tokenizer.next.type == 'I32':
+                        #~~~ Consumes token ~~~#
+                        Parser.tokenizer.selectNext()
+                        for var in var_dec_list:
+                            # Creates IntVal where default value is None (might be better to do this inside SymTable)
+                            res = IntVal(var, None)
+                            res_list.append(res)
+                    if Parser.tokenizer.next.type == 'EQUAL':
+                        raise Exception("")
+                    if Parser.tokenizer.next.type != 'SEMICOLON':
+                        raise Exception("Missing ';'")
+
+                # #~~~ Consumes token ~~~#
+                # Parser.tokenizer.selectNext()
+                    
+                mprint(f"Declaring variables {[x.value for x in res_list]}")
+                ret = VarDec('DECLARATION', res_list)
+
+            return ret
+        
+        ### PRINT ### -> Print(RelExpression)
         elif Parser.tokenizer.next.type == 'PRINT':
-            # print("Found PRINT")
             #~~~ Consumes token ~~~#
             Parser.tokenizer.selectNext()
             
@@ -167,65 +225,61 @@ class Parser:
                 Parser.tokenizer.selectNext()
                 res = BinOp('EQUAL', [res, Parser.parseExpression()])
 
+            elif Parser.tokenizer.next.type == 'CONCAT':
+                Parser.tokenizer.selectNext()
+                res = BinOp('CONCAT', [res, Parser.parseExpression()])
+
         return res
 
     @staticmethod
     def parseExpression():
-        #print(f"Inside parseExpression: {Parser.tokenizer.next.value}")
+
         res = Parser.parseTerm()
-        #print(f"res from parseTerm is {res.value, res.children}")
-        #print(f"Next: {Parser.tokenizer.next.value}")
 
         while Parser.tokenizer.next.type in ['MINUS', 'PLUS', 'OR']:
 
             if Parser.tokenizer.next.type == 'PLUS':
                 Parser.tokenizer.selectNext()
                 res = BinOp('PLUS', [res, Parser.parseTerm()])
-                # print(f"BinOp returned ({res.value}, [{res.children[0].value, res.children[1].value}])")
-
 
             elif Parser.tokenizer.next.type == 'MINUS':
                 Parser.tokenizer.selectNext()
                 res = BinOp('MINUS', [res, Parser.parseTerm()])
-                # print(f"BinOp returned ({res.value}, [{res.children[0].value, res.children[1].value}])")
 
             elif Parser.tokenizer.next.type == 'OR':
                 Parser.tokenizer.selectNext()
                 res = BinOp('OR', [res, Parser.parseTerm()])
-                # print(f"BinOp returned ({res.value}, [{res.children[0].value, res.children[1].value}])")
-
 
         return res
         
     @staticmethod
     def parseTerm():
-        # print(f"Inside parseTerm: {Parser.tokenizer.next.value}")
+
         res = Parser.parseFactor()
 
         while Parser.tokenizer.next.type in ['MULT', 'DIV', 'AND']:
             if Parser.tokenizer.next.type == 'MULT':
                 Parser.tokenizer.selectNext()
                 res = BinOp('MULT', [res, Parser.parseFactor()])
-                # print(f"BinOp returned ({res.value}, [{res.children[0].value, res.children[1].value}])")
 
             if Parser.tokenizer.next.type == 'DIV':
                 Parser.tokenizer.selectNext()
                 res = BinOp('DIV', [res, Parser.parseFactor()])
-                # print(f"BinOp returned ({res.value}, [{res.children[0].value, res.children[1].value}])")
 
             if Parser.tokenizer.next.type == 'AND':
                 Parser.tokenizer.selectNext()
                 res = BinOp('AND', [res, Parser.parseFactor()])
-                # print(f"BinOp returned ({res.value}, [{res.children[0].value, res.children[1].value}])")
-
 
         return res
 
     @staticmethod
     def parseFactor():
-        #print(f"Inside parseFactor: {Parser.tokenizer.next.value}")
         if Parser.tokenizer.next.type == 'INT':
             res = IntVal(Parser.tokenizer.next.value)
+            Parser.tokenizer.selectNext()
+
+        if Parser.tokenizer.next.type == 'STRING':
+            res = String(Parser.tokenizer.next.value)
             Parser.tokenizer.selectNext()
             
         ## UNARY OPERATIONS ##
@@ -233,24 +287,21 @@ class Parser:
         elif Parser.tokenizer.next.type == 'MINUS':
             Parser.tokenizer.selectNext()
             res = UnOp('MINUS', [Parser.parseFactor()])
-            # print(f"UnOp -> MINUS: RES = {res.children[0].value}")
 
         elif Parser.tokenizer.next.type == 'PLUS':
-            #print(f"Inside plus UnOP: {Parser.tokenizer.next.value}")
             Parser.tokenizer.selectNext()
             res = UnOp('PLUS', [Parser.parseFactor()])
-            # print(f"UnOp -> PLUS: RES = {res.value}")
 
         elif Parser.tokenizer.next.type == 'NOT':
-            #print(f"Inside plus UnOP: {Parser.tokenizer.next.value}")
             Parser.tokenizer.selectNext()
             res = UnOp('NOT', [Parser.parseFactor()])
-            # print(f"UnOp -> PLUS: RES = {res.value}")
 
         ## BINARY OPERATIONS ##
 
         elif Parser.tokenizer.next.type == 'IDENTIFIER':
+            mprint(f"Found identifier {Parser.tokenizer.next.value}")
             res = Identifier(Parser.tokenizer.next.value)
+            mprint(f"Identifier {Parser.tokenizer.next.value} has value {res.value}")
             Parser.tokenizer.selectNext()
 
         elif Parser.tokenizer.next.type == 'OPEN_PAR':
@@ -265,6 +316,7 @@ class Parser:
             Parser.tokenizer.selectNext()
 
         ## READ OPERATIONS ##
+
         elif Parser.tokenizer.next.type == 'READ':
             res = Read('READ')
             Parser.tokenizer.selectNext()
@@ -278,7 +330,6 @@ class Parser:
         
         else:
             raise Exception(f"Expected INT, or unary, but got {Parser.tokenizer.next.type} type, with {Parser.tokenizer.next.value} value")
-        #print(f"Returning {res.value} on parseFactor")
         return res
 
     def run(code):

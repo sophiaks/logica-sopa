@@ -1,4 +1,5 @@
 import re
+from aux import mprint
 variable_pattern = "^[A-Za-z]+[A-Za-z0-9_]*$"
 
 reserved_wrds = {
@@ -6,7 +7,10 @@ reserved_wrds = {
     'while': 'WHILE',
     'if': 'IF',
     'else': 'ELSE',
-    'Read': 'READ'
+    'Read': 'READ',
+    'i32': 'I32',
+    'String': 'STRING',
+    'var': 'VAR'
 }
 
 class Token:
@@ -47,16 +51,19 @@ class Tokenizer:
                     break
                         
             if temp_next.isdigit():
-                # print(f'Found INT ({temp_next})')
+                mprint(f'Found INT ({temp_next})')
                 self.next = Token('INT', int(temp_next))
 
             elif temp_next in reserved_wrds:
                 self.next = Token(reserved_wrds[temp_next], temp_next)
+                mprint(f"Found {self.next.value}")
         
             elif bool(re.search(variable_pattern, temp_next)):
                 self.next = Token('IDENTIFIER', temp_next)
+                mprint(f"Found identifier {self.next.value}")
             else:
                 raise Exception("Invalid variable format")
+
 
         elif self.source[self.position] == '&':
             self.position += 1
@@ -75,6 +82,43 @@ class Tokenizer:
                 self.position += 1
             else:
                 raise Exception("Token not recognized: |")
+            return self.next
+
+        elif self.source[self.position] == '.':
+            self.next = Token('CONCAT', '.')
+            self.position += 1
+            return self.next
+
+        elif self.source[self.position] == ':':
+            self.next = Token('COLON', ':')
+            self.position += 1
+            return self.next
+
+        elif self.source[self.position] == 'var':
+            self.next = Token('VAR', 'var')
+            self.position += 1
+            return self.next
+
+        elif self.source[self.position] == ',':
+            self.next = Token('COMMA', ',')
+            self.position += 1
+            return self.next
+
+        elif self.source[self.position] == '"':
+            res_string = ''
+            self.position += 1
+            while self.source[self.position] != '"':
+                res_string += self.source[self.position]
+                self.position += 1
+            #TODO: Leave string spaces (removing all the spaces currently) -> instead of "x: " we have "x:"
+            self.next = Token('STRING', res_string)
+            mprint(f"Res string: '{self.next.value}'")
+            self.position += 1
+            return self.next
+        
+        elif self.source[self.position] == 'type':
+            self.next = Token('TYPE', 'type')
+            self.position += 1
             return self.next
 
         elif self.source[self.position] == '>':
@@ -146,13 +190,13 @@ class Tokenizer:
 
         elif self.source[self.position] == ";":
             self.next = Token('SEMICOLON', ";")
-            # print("Found SEMICOLON")
+            mprint("Found SEMICOLON")
             self.position += 1
             return self.next   
 
         elif self.source[self.position] == "=":
             self.next = Token('ASSIGNMENT', "=")
-            # print("Found EQUAL")
+            mprint("Found EQUAL")
             self.position += 1
             if self.source[self.position] == "=":
                 self.next = Token('EQUAL', "==")
