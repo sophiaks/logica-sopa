@@ -36,7 +36,7 @@ if len(code) == 0:
 def printChildren(children):
     print(children.children)
 
-res = Parser.run(code)
+res = Parser.run(code) 
 
 res.Evaluate()
 
