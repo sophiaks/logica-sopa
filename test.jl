@@ -150,13 +150,13 @@
 # }
 
 
-{
-  var x : String;
-  x = "a";
-  var y : i32;
-  y = 1;
-  Print(x==y);
-}
+# {
+#   var x : String;
+#   x = "a";
+#   var y : i32;
+#   y = 1;
+#   Print(x==y);
+# }
 
 
 # {
@@ -182,3 +182,58 @@
 #     Print(x_1);
 #     while ((x_1 > 1) || (x_1 == 1)) {x_1 = x_1 - 1;Print(x_1);}
 #     }
+
+
+# {
+#   // All str operations 
+#   var a, b : String;
+#   var x_1, y, z : i32;
+#   x_1 = 1; y = 1; z = 2;
+#   a = "abc";
+#   b = "def";
+#   Print(a.b);
+#   Print(a.x_1);
+#   Print(x_1.a);
+#   Print(y.z);
+#   Print(a.(x_1==1));
+#   Print(a == a);
+#   Print(a < b);
+#   Print(a > b);
+
+# }
+
+
+# {
+#   var x : i32;
+#   var x : String;
+# }
+
+# {
+#   var x : String;
+#   x = Read();
+#   Print(x+1);
+# }
+
+
+# {
+#   // All bool and int operations
+#   var y, z : i32;
+#   y = 2;
+#   z = (y == 2);
+#   Print(y+z);
+#   Print(y-z);
+#   Print(y*z);
+#   Print(y/z);
+#   Print(y == z);
+#   Print(y < z);
+#   Print(y > z);
+# }
+
+
+# {
+#   var x : String;
+#   x = "a";
+#   var y : i32;
+#   y = 1;
+#   Print(x==y);
+# }

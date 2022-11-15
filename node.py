@@ -23,6 +23,16 @@ class Node:
         pass
 
 class BinOp(Node):
+    # def sameTypeInt(type1, type2):
+    #     isInt = False
+    #     if (type1 == 'I32' and type2 == 'I32'):
+    #         isInt = True
+    #     else:
+    #         raise Exception("Arguments must be of I32 type")
+    #     if not ((type1 == type2) and isInt):
+    #         raise Exception("Arguments must be of the same type")
+
+
     def Evaluate(self):
 
         # Getting NODES types and values 
@@ -33,10 +43,8 @@ class BinOp(Node):
         (type_b, value_b) = b.Evaluate()
 
         if self.value == 'PLUS':
-            # if not check_type(a, b):
-            #     raise Exception(f"Invalid types for {self.value} operation")       
             # Recursion
-            res = value_a + value_b
+            res = int(value_a + value_b)
             plus = ('I32', res)
             return plus
 
@@ -44,7 +52,7 @@ class BinOp(Node):
             # if not check_type(a, b):
             #     raise Exception(f"Invalid types for {self.value} operation")        
             # Recursion
-            res = (value_a == value_b)
+            res = int(value_a == value_b)
             eq = ('I32', res)
             return eq # int
 
@@ -52,7 +60,7 @@ class BinOp(Node):
             # if not check_type(a, b):
             #     raise Exception(f"Invalid types for {self.value} operation")
             # Recursion
-            res = value_a > value_b
+            res = int(value_a > value_b)
             tuple = ('I32', res)
             return tuple # int
 
@@ -60,7 +68,7 @@ class BinOp(Node):
             # if not check_type(a, b):
             #     raise Exception(f"Invalid types for {self.value} operation")     
             # Recursion
-            res = value_a < value_b
+            res = int(value_a < value_b)
             tuple = ('I32', res)
             return tuple # int
         
@@ -68,7 +76,7 @@ class BinOp(Node):
             # if not check_type(a, b):
             #     raise Exception(f"Invalid types for {self.value} operation")         
             # Recursion
-            res = value_a and value_b
+            res = int(value_a and value_b)
             tuple = ('I32', res)
             return tuple # int
 
@@ -76,7 +84,7 @@ class BinOp(Node):
             # if not check_type(a, b):
             #     raise Exception(f"Invalid types for {self.value} operation")         
             # Recursion
-            res = value_a or value_b
+            res = int(value_a or value_b)
             tuple = ('I32', res)
             return tuple # int
 
@@ -84,7 +92,7 @@ class BinOp(Node):
             # if not check_type(a, b):
             #     raise Exception(f"Invalid types for {self.value} operation")
             # Recursion
-            res =  value_a - value_b
+            res =  int(value_a - value_b)
             tuple = ('I32', res)
             return tuple # int
 
@@ -92,7 +100,7 @@ class BinOp(Node):
             # if not check_type(a, b):
             #     raise Exception(f"Invalid types for {self.value} operation")
             # Recursion
-            res = value_a * value_b
+            res = int(value_a * value_b)
             tuple = ('I32', res)
             return tuple # int
 
@@ -100,7 +108,7 @@ class BinOp(Node):
             # if not check_type(a, b):
             #     raise Exception(f"Invalid types for {self.value} operation")
             # Recursion
-            res = value_a // value_b
+            res = int(value_a // value_b)
             tuple = ('I32', res)
             return tuple # int
 
@@ -143,7 +151,10 @@ class Assignment(Node):
 class Print(Node):
     def Evaluate(self):
         (_type, a) = self.children[0].Evaluate()
-        print(a)
+        if _type == 'I32':
+            print(int(a))
+        else:
+            print(a)
 
 class If(Node):
     def Evaluate(self):
