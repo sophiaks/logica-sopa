@@ -13,7 +13,6 @@ class Parser:
     def parseBlock():
         block = Block(None, [])
         if Parser.tokenizer.next.type == 'OPEN_BRAC':
-            mprint("Found OpenBrac")
             #~~~ Consumes token ~~~#
             Parser.tokenizer.selectNext()
 
@@ -45,11 +44,12 @@ class Parser:
 
         if Parser.tokenizer.next.type == 'IDENTIFIER':
             id = Identifier(Parser.tokenizer.next.value)
-            
+
             #~~~ Consumes token ~~~#
             Parser.tokenizer.selectNext()
 
             if Parser.tokenizer.next.type == 'ASSIGNMENT':
+                ("Found assignment type")
                 #~~~ Consumes token ~~~#
                 Parser.tokenizer.selectNext()
 
@@ -67,6 +67,8 @@ class Parser:
             Parser.tokenizer.selectNext()
             res = NoOp(Parser.tokenizer.next.value)
             return res
+
+        ###     WHILE    ###
             
         elif Parser.tokenizer.next.type == "WHILE":
             Parser.tokenizer.selectNext()
@@ -128,16 +130,16 @@ class Parser:
             Parser.tokenizer.selectNext()
 
             if Parser.tokenizer.next.type == 'IDENTIFIER':
-                var_dec_list = [Parser.tokenizer.next.value]
-                res_list = []
+                res = VarDec("", [])
+                # Adds first identifier to list
+                res.children.append(Parser.tokenizer.next.value)
                 #~~~ Consumes token ~~~#
                 Parser.tokenizer.selectNext()
 
                 while Parser.tokenizer.next.type == 'COMMA':
-                    
                     #~~~ Consumes token ~~~#
                     Parser.tokenizer.selectNext()
-                    var_dec_list.append(Parser.tokenizer.next.value)
+                    res.children.append(Parser.tokenizer.next.value)
                     #~~~ Consumes token ~~~#
                     Parser.tokenizer.selectNext()
                 
@@ -145,36 +147,23 @@ class Parser:
                     #~~~ Consumes token ~~~#
                     Parser.tokenizer.selectNext()
 
-                    if Parser.tokenizer.next.type == 'STRING':
-                        #~~~ Consumes token ~~~#
-                        Parser.tokenizer.selectNext()
-                        mprint("Found STRING type")
-                        for var in var_dec_list:
-                            # Creates IntVal where default value is None (might be better to do this inside SymTable)
-                            res = String(var, None)
-                            res_list.append(res)
+                    res.value = Parser.tokenizer.next.type
 
-                    if Parser.tokenizer.next.type == 'I32':
-                        #~~~ Consumes token ~~~#
-                        Parser.tokenizer.selectNext()
-                        for var in var_dec_list:
-                            # Creates IntVal where default value is None (might be better to do this inside SymTable)
-                            res = IntVal(var, None)
-                            res_list.append(res)
+                    #~~~ Consumes token ~~~#
+                    Parser.tokenizer.selectNext()
+                    
                     if Parser.tokenizer.next.type == 'EQUAL':
-                        raise Exception("")
+                        raise Exception("Cannot declare and assign at the same time")
+
                     if Parser.tokenizer.next.type != 'SEMICOLON':
                         raise Exception("Missing ';'")
 
                 # #~~~ Consumes token ~~~#
-                # Parser.tokenizer.selectNext()
-                    
-                mprint(f"Declaring variables {[x.value for x in res_list]}")
-                ret = VarDec('DECLARATION', res_list)
 
-            return ret
+            return res
         
-        ### PRINT ### -> Print(RelExpression)
+        ###     PRINT   ###
+
         elif Parser.tokenizer.next.type == 'PRINT':
             #~~~ Consumes token ~~~#
             Parser.tokenizer.selectNext()
@@ -211,7 +200,7 @@ class Parser:
 
         res = Parser.parseExpression()
 
-        while Parser.tokenizer.next.type in ['EQUAL', 'GREATER_THAN', 'LESS_THAN']:
+        while Parser.tokenizer.next.type in ['EQUAL', 'GREATER_THAN', 'LESS_THAN', 'CONCAT']:
 
             if Parser.tokenizer.next.type == 'GREATER_THAN':
                 Parser.tokenizer.selectNext()
@@ -277,32 +266,35 @@ class Parser:
         if Parser.tokenizer.next.type == 'INT':
             res = IntVal(Parser.tokenizer.next.value)
             Parser.tokenizer.selectNext()
+            return res
+        
+        elif Parser.tokenizer.next.type == 'IDENTIFIER':
+            res = Identifier(Parser.tokenizer.next.value)
+            Parser.tokenizer.selectNext()
+            return res
 
-        if Parser.tokenizer.next.type == 'STRING':
+        elif Parser.tokenizer.next.type == 'STRING':
             res = String(Parser.tokenizer.next.value)
             Parser.tokenizer.selectNext()
-            
+            return res
         ## UNARY OPERATIONS ##
 
         elif Parser.tokenizer.next.type == 'MINUS':
             Parser.tokenizer.selectNext()
             res = UnOp('MINUS', [Parser.parseFactor()])
+            return res
 
         elif Parser.tokenizer.next.type == 'PLUS':
             Parser.tokenizer.selectNext()
             res = UnOp('PLUS', [Parser.parseFactor()])
+            return res
 
         elif Parser.tokenizer.next.type == 'NOT':
             Parser.tokenizer.selectNext()
             res = UnOp('NOT', [Parser.parseFactor()])
+            return res
 
         ## BINARY OPERATIONS ##
-
-        elif Parser.tokenizer.next.type == 'IDENTIFIER':
-            mprint(f"Found identifier {Parser.tokenizer.next.value}")
-            res = Identifier(Parser.tokenizer.next.value)
-            mprint(f"Identifier {Parser.tokenizer.next.value} has value {res.value}")
-            Parser.tokenizer.selectNext()
 
         elif Parser.tokenizer.next.type == 'OPEN_PAR':
             Parser.open_par = True
@@ -314,6 +306,7 @@ class Parser:
             
             Parser.open_par = False
             Parser.tokenizer.selectNext()
+            return res
 
         ## READ OPERATIONS ##
 

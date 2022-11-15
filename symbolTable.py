@@ -4,18 +4,21 @@ class SymbolTable:
     table = {}
 
     @staticmethod
-    def getValue(identifier):
-        if identifier not in SymbolTable.table:
-            mprint(SymbolTable.table)
-            raise Exception("Unrecognized symbol (have you declared it?")
-        if SymbolTable.table[identifier] is None:
-            mprint(SymbolTable.table)
-            raise Exception("No value assigned to identifier")
-        return SymbolTable.table[identifier]
+    # Receives STR type with identifier name
+    def getValue(idvalue):
+        if idvalue not in SymbolTable.table:
+            raise Exception(f"Unrecognized symbol {idvalue} (have you declared it?)")
+        if SymbolTable.table[idvalue] is None: 
+            pass
+        return SymbolTable.table[idvalue]
 
     @staticmethod
-    def setValue(id, type,value):
-        SymbolTable.table[id.value] = (type, value)
+    def setValue(idvalue, value):
+        SymbolTable.table[idvalue] = value
+
+    @staticmethod
+    def dec_var(var_type, id):
+        SymbolTable.table[id] = (var_type, None)
     
     @staticmethod
     def getTable():

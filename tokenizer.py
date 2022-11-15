@@ -51,16 +51,13 @@ class Tokenizer:
                     break
                         
             if temp_next.isdigit():
-                mprint(f'Found INT ({temp_next})')
                 self.next = Token('INT', int(temp_next))
 
             elif temp_next in reserved_wrds:
                 self.next = Token(reserved_wrds[temp_next], temp_next)
-                mprint(f"Found {self.next.value}")
         
             elif bool(re.search(variable_pattern, temp_next)):
                 self.next = Token('IDENTIFIER', temp_next)
-                mprint(f"Found identifier {self.next.value}")
             else:
                 raise Exception("Invalid variable format")
 
@@ -112,7 +109,6 @@ class Tokenizer:
                 self.position += 1
             #TODO: Leave string spaces (removing all the spaces currently) -> instead of "x: " we have "x:"
             self.next = Token('STRING', res_string)
-            mprint(f"Res string: '{self.next.value}'")
             self.position += 1
             return self.next
         
@@ -138,11 +134,9 @@ class Tokenizer:
             # print("Found NOT")
             self.position += 1
             return self.next
- 
 
         elif self.source[self.position] == '+':
             self.next = Token('PLUS', '+')
-            # print("Found PLUS")
             self.position += 1
             return self.next
 
@@ -190,13 +184,11 @@ class Tokenizer:
 
         elif self.source[self.position] == ";":
             self.next = Token('SEMICOLON', ";")
-            mprint("Found SEMICOLON")
             self.position += 1
             return self.next   
 
         elif self.source[self.position] == "=":
             self.next = Token('ASSIGNMENT', "=")
-            mprint("Found EQUAL")
             self.position += 1
             if self.source[self.position] == "=":
                 self.next = Token('EQUAL', "==")
