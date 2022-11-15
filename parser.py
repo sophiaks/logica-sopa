@@ -31,25 +31,24 @@ class Parser:
 
     @staticmethod
     def parseStatement():
+
         if Parser.tokenizer.next.type == 'INT':
             raise Exception("Statements must not start with an INT type")
 
         ##      BLOCK       ##
-
         if Parser.tokenizer.next.type == 'OPEN_BRAC':
             return Parser.parseBlock()
 
-        
         ##      ASSIGNMENT       ##
-
         if Parser.tokenizer.next.type == 'IDENTIFIER':
+            mprint("ASSIGNMENT")
+            mprint(f"    - Assigning value to {Parser.tokenizer.next.value}")
             id = Identifier(Parser.tokenizer.next.value)
 
             #~~~ Consumes token ~~~#
             Parser.tokenizer.selectNext()
 
             if Parser.tokenizer.next.type == 'ASSIGNMENT':
-                ("Found assignment type")
                 #~~~ Consumes token ~~~#
                 Parser.tokenizer.selectNext()
 
@@ -71,23 +70,28 @@ class Parser:
         ###     WHILE    ###
             
         elif Parser.tokenizer.next.type == "WHILE":
+            mprint("WHILE CLAUSE")
             Parser.tokenizer.selectNext()
             if Parser.tokenizer.next.type == 'OPEN_PAR':
                 Parser.tokenizer.selectNext()
                 resCondition = Parser.parseRelExpression()
+                mprint("Condition Parsed")
             if Parser.tokenizer.next.type != 'CLOSE_PAR':
                 raise Exception("Missing )")
             Parser.tokenizer.selectNext()
             if Parser.tokenizer.next.type == 'OPEN_BRAC':
                 resStatement = Parser.parseBlock()
+                mprint("Block parsed")
             else:
                 resStatement = Parser.parseStatement()
+                mprint("Statement parsed")
             res = While('WHILE', [resCondition, resStatement])
             return res
 
         ##      IF       ##
 
         elif Parser.tokenizer.next.type == "IF":
+            mprint("IF CLAUSE")
             Parser.tokenizer.selectNext()
 
             # Condition is mandatory
@@ -107,25 +111,32 @@ class Parser:
                     raise Exception("Empty if clause")
                 # One-line if clause
                 else:
+                    mprint("    - One-liner If")
                     resStatement = Parser.parseStatement()
-
+                    Parser.tokenizer.selectNext()
+                    mprint(f"resStatement is {resStatement}")
                 
                 if Parser.tokenizer.next.type == "ELSE":
+                    mprint("    - Else clause")
                     Parser.tokenizer.selectNext()
                     # If-else clause
                     res = If('IF', [resCondition, resStatement, Parser.parseStatement()])
+
                 else:
                     # No else
+                    mprint("    - If with no else")
+                    mprint(Parser.tokenizer.next.type)
                     res = If('IF', [resCondition, resStatement])
             
             # More than one else
             if Parser.tokenizer.next.type == "ELSE":
-                raise Exception("If clause has wrong sytntax")
+                raise Exception("If clause has wrong syntax")
             return res
             
         ###     VARIABLE DECLARATION     ###
 
         elif Parser.tokenizer.next.type == 'VAR':
+            mprint("VARIABLE DECLARATION")
             #~~~ Consumes token ~~~#
             Parser.tokenizer.selectNext()
 
@@ -133,6 +144,7 @@ class Parser:
                 res = VarDec("", [])
                 # Adds first identifier to list
                 res.children.append(Parser.tokenizer.next.value)
+                mprint(f"    - Declaring {Parser.tokenizer.next.value}")
                 #~~~ Consumes token ~~~#
                 Parser.tokenizer.selectNext()
 
@@ -140,6 +152,7 @@ class Parser:
                     #~~~ Consumes token ~~~#
                     Parser.tokenizer.selectNext()
                     res.children.append(Parser.tokenizer.next.value)
+                    mprint(f"    - Declaring {Parser.tokenizer.next.value}")
                     #~~~ Consumes token ~~~#
                     Parser.tokenizer.selectNext()
                 
@@ -311,6 +324,7 @@ class Parser:
         ## READ OPERATIONS ##
 
         elif Parser.tokenizer.next.type == 'READ':
+            mprint("READING INPUT")
             res = Read('READ')
             Parser.tokenizer.selectNext()
             if Parser.tokenizer.next.type != 'OPEN_PAR':

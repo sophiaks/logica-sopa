@@ -37,7 +37,7 @@ class BinOp(Node):
             #     raise Exception(f"Invalid types for {self.value} operation")       
             # Recursion
             res = value_a + value_b
-            plus = ('INT', res)
+            plus = ('I32', res)
             return plus
 
         if self.value == 'EQUAL':
@@ -45,7 +45,7 @@ class BinOp(Node):
             #     raise Exception(f"Invalid types for {self.value} operation")        
             # Recursion
             res = (value_a == value_b)
-            eq = ('INT', res)
+            eq = ('I32', res)
             return eq # int
 
         if self.value == 'GREATER_THAN':         
@@ -53,7 +53,7 @@ class BinOp(Node):
             #     raise Exception(f"Invalid types for {self.value} operation")
             # Recursion
             res = value_a > value_b
-            tuple = ('INT', res)
+            tuple = ('I32', res)
             return tuple # int
 
         if self.value == 'LESS_THAN':     
@@ -61,7 +61,7 @@ class BinOp(Node):
             #     raise Exception(f"Invalid types for {self.value} operation")     
             # Recursion
             res = value_a < value_b
-            tuple = ('INT', res)
+            tuple = ('I32', res)
             return tuple # int
         
         if self.value == 'AND':  
@@ -69,7 +69,7 @@ class BinOp(Node):
             #     raise Exception(f"Invalid types for {self.value} operation")         
             # Recursion
             res = value_a and value_b
-            tuple = ('INT', res)
+            tuple = ('I32', res)
             return tuple # int
 
         if self.value == 'OR':  
@@ -77,7 +77,7 @@ class BinOp(Node):
             #     raise Exception(f"Invalid types for {self.value} operation")         
             # Recursion
             res = value_a or value_b
-            tuple = ('INT', res)
+            tuple = ('I32', res)
             return tuple # int
 
         if self.value == 'MINUS':
@@ -85,7 +85,7 @@ class BinOp(Node):
             #     raise Exception(f"Invalid types for {self.value} operation")
             # Recursion
             res =  value_a - value_b
-            tuple = ('INT', res)
+            tuple = ('I32', res)
             return tuple # int
 
         if self.value == 'MULT':
@@ -93,7 +93,7 @@ class BinOp(Node):
             #     raise Exception(f"Invalid types for {self.value} operation")
             # Recursion
             res = value_a * value_b
-            tuple = ('INT', res)
+            tuple = ('I32', res)
             return tuple # int
 
         if self.value == 'DIV':
@@ -101,7 +101,7 @@ class BinOp(Node):
             #     raise Exception(f"Invalid types for {self.value} operation")
             # Recursion
             res = value_a // value_b
-            tuple = ('INT', res)
+            tuple = ('I32', res)
             return tuple # int
 
         if self.value == 'CONCAT':
@@ -114,7 +114,7 @@ class UnOp(Node):
         a = self.children[0]
         (type_a, value_a) = a.Evaluate()
 
-        if type_a != 'INT':
+        if type_a != 'I32':
             raise Exception("Wrong data type for unary operation")
 
         if self.value == 'MINUS':
@@ -167,10 +167,11 @@ class If(Node):
 
 class While(Node):
     def Evaluate(self):
-        a = self.children[0]
-        b = self.children[1]
-        while (a.Evaluate()):
+        a, b = self.children
+        (res_type, res) = a.Evaluate()
+        while (res):
             b.Evaluate()
+            (res_type, res) = a.Evaluate()
 
 class Read(Node):
     def Evaluate(self):
