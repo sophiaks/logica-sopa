@@ -1,5 +1,5 @@
 def mprint(x):
-    debug = True
+    debug = False
     if debug:
         print(x)
     else:

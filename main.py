@@ -30,7 +30,6 @@ for line in lines:
 
 # Running the program
 # RUN WILL CALL PARSEBLOCK
-print(code)
 if len(code) == 0:
     raise Exception("Empty input")
 
