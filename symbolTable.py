@@ -1,11 +1,12 @@
 from aux import mprint
 
 class SymbolTable:
+    position = 0
     table = {}
 
     @staticmethod
     def assign_right_type(id_value, value):
-        (table_type, table_value) = SymbolTable.getValue(id_value)
+        (table_type, table_value, _pos) = SymbolTable.getValue(id_value)
         (assigned_type, assigned_value) = value
 
         if (table_type != assigned_type):
@@ -33,7 +34,8 @@ class SymbolTable:
     @staticmethod
     def dec_var(var_type, id):
         SymbolTable.var_declared(id)
-        SymbolTable.table[id] = (var_type, None)
+        SymbolTable.position += 4
+        SymbolTable.table[id] = (var_type, None, SymbolTable.position)
 
     
     @staticmethod

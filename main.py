@@ -1,6 +1,7 @@
 import sys
 import re
 from parser import Parser
+from asm import ASM, asm_clau
 
 char_dict = {
     'PLUS': '+',
@@ -35,6 +36,8 @@ if len(code) == 0:
 
 def printChildren(children):
     print(children.children)
+
+asm_clau.createFile()
 
 res = Parser.run(code) 
 

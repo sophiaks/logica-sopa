@@ -1,37 +1,34 @@
 from symbolTable import SymbolTable
 from aux import mprint
-# TODO: Change nodes to return tuple (value, size)
-# TODO Syntax: one entry for factor, one entry for 
-# TODO: new node VarDec -> put type inside; if i32, node value is i32 -> children: [identifiers (number of commas)]
-# var dec creates symboltable entry;
-# set checks if var has been declared;
-# create int = 0; string = ""
-# TODO: assignment -> create two nodes - declaration or attribution -> statement has to return two nodes
-# Last vardec child is assignment or some value
-# If I have two variables
-# Multiple variables and = -> Raise !!!
+from asm import asm_clau
+
+
+# TODO: Modificar o Evaluate() para gerar código para as seguintes operações:
+# – Declaração de variáveis
+# – Operações aritméticas
+# – Atribuição
+# – Condicional
+# – Loop
+# – Print
 
 class Node:
     value = None
     children = []
+    id = 0
 
     def __init__(self, value, children = None):
         self.value = value
         self.children = children
+
+    @staticmethod
+    def new_id():
+        Node.id += 1
+        return Node.id
     
     def Evaluate(self):
         pass
 
 class BinOp(Node):
-    # def sameTypeInt(type1, type2):
-    #     isInt = False
-    #     if (type1 == 'I32' and type2 == 'I32'):
-    #         isInt = True
-    #     else:
-    #         raise Exception("Arguments must be of I32 type")
-    #     if not ((type1 == type2) and isInt):
-    #         raise Exception("Arguments must be of the same type")
-
 
     def Evaluate(self):
 
@@ -42,78 +39,79 @@ class BinOp(Node):
         (type_a, value_a) = a.Evaluate()
         (type_b, value_b) = b.Evaluate()
 
+        asm_clau.write_line(f'MOV EBX, {value_a} ; Evaluate() do filho IntVal da esquerda')
+        asm_clau.write_line('PUSH EBX ; O BinOp guarda o resultado na pilha')
+        
+        asm_clau.write_line(f'MOV EBX, {value_b} ; Evaluate() do filho IntVal da direita')        
+        asm_clau.write_line('POP EAX ; O BinOp recupera o valor da pilha em EAX')
+
+        #'ADD EAX, EBX ; O BinOp executa a operação correspondente'
+        #'MOV EBX, EAX ; O BinOp retorna o valor em EBX (sempre EBX)'
+
         if self.value == 'PLUS':
-            # Recursion
+            asm_clau.write_line("ADD EAX, EBX;")
+            asm_clau.write_line("MOV EBX, EAX;")
             res = int(value_a + value_b)
-            plus = ('I32', res)
-            return plus
+            # plus = ('I32', res)
+            # return plus
 
         if self.value == 'EQUAL':
-            # if not check_type(a, b):
-            #     raise Exception(f"Invalid types for {self.value} operation")        
-            # Recursion
             res = int(value_a == value_b)
             eq = ('I32', res)
-            return eq # int
+            asm_clau.write_line('CMP EAX, EBX')
+            asm_clau.write_line('CALL binop_je')
+            return eq
 
-        if self.value == 'GREATER_THAN':         
-            # if not check_type(a, b):
-            #     raise Exception(f"Invalid types for {self.value} operation")
-            # Recursion
+        if self.value == 'GREATER_THAN':
             res = int(value_a > value_b)
             tuple = ('I32', res)
-            return tuple # int
+            asm_clau.write_line('CMP EAX, EBX')
+            asm_clau.write_line('CALL binop_jg')
+            return tuple
 
-        if self.value == 'LESS_THAN':     
-            # if not check_type(a, b):
-            #     raise Exception(f"Invalid types for {self.value} operation")     
-            # Recursion
+        if self.value == 'LESS_THAN':
             res = int(value_a < value_b)
             tuple = ('I32', res)
-            return tuple # int
+            asm_clau.write_line('CMP EAX, EBX')
+            asm_clau.write_line('CALL binop_jl')
+            return tuple
         
-        if self.value == 'AND':  
-            # if not check_type(a, b):
-            #     raise Exception(f"Invalid types for {self.value} operation")         
-            # Recursion
+        if self.value == 'AND':
             res = int(value_a and value_b)
             tuple = ('I32', res)
-            return tuple # int
+            asm_clau.write_line("AND EAX, EBX;")
+            asm_clau.write_line("MOV EBX, EAX;")
+            return tuple
 
         if self.value == 'OR':  
-            # if not check_type(a, b):
-            #     raise Exception(f"Invalid types for {self.value} operation")         
-            # Recursion
             res = int(value_a or value_b)
             tuple = ('I32', res)
-            return tuple # int
+            asm_clau.write_line("OR EAX, EBX;")
+            asm_clau.write_line("MOV EBX, EAX;")
+            return tuple
 
         if self.value == 'MINUS':
-            # if not check_type(a, b):
-            #     raise Exception(f"Invalid types for {self.value} operation")
-            # Recursion
             res =  int(value_a - value_b)
             tuple = ('I32', res)
-            return tuple # int
+            asm_clau.write_line("SUB EAX, EBX;")
+            asm_clau.write_line("MOV EBX, EAX;")
+            return tuple
 
         if self.value == 'MULT':
-            # if not check_type(a, b):
-            #     raise Exception(f"Invalid types for {self.value} operation")
-            # Recursion
             res = int(value_a * value_b)
             tuple = ('I32', res)
-            return tuple # int
+            asm_clau.write_line("IMUL EAX, EBX;")
+            asm_clau.write_line("MOV EBX, EAX;")
+            return tuple
 
         if self.value == 'DIV':
-            # if not check_type(a, b):
-            #     raise Exception(f"Invalid types for {self.value} operation")
-            # Recursion
             res = int(value_a // value_b)
             tuple = ('I32', res)
-            return tuple # int
+            asm_clau.write_line("IDIV EAX, EBX;")
+            asm_clau.write_line("MOV EBX, EAX;")
+            return tuple
 
         if self.value == 'CONCAT':
-            # Recursion
             res = str(value_a) + str(value_b)
             return ('STRING', res)
             
@@ -138,15 +136,21 @@ class VarDec(Node):
     def Evaluate(self):
         var_type = self.value
         for identifier in self.children:
+            #asm_clau.write_line("PUSH DWORD 0 ; alocação na primeira atribuição")
             SymbolTable.dec_var(var_type, identifier)
 
 class Assignment(Node):
     def Evaluate(self):
         if self.value == 'ASSIGNMENT':
             identifier_node, expression = self.children
+
             # Checking if identifier has been declared
-            id_exists = SymbolTable.getValue(identifier_node.value)
+            (_var_type, _value, pos) = SymbolTable.getValue(identifier_node.value)
             SymbolTable.setValue(identifier_node.value, expression.Evaluate())
+
+            asm_clau.write_line(f'MOV EBX, {expression.Evaluate()} ; Evaluate() do filho da direita')
+            asm_clau.write_line(f'MOV [EBP-{pos}], EBX; resultado da atribuição - não há return')
+
 
 class Print(Node):
     def Evaluate(self):
@@ -155,34 +159,46 @@ class Print(Node):
             print(int(a))
         else:
             print(a)
+        asm_clau.write_line("PUSH EBX")
+        asm_clau.write_line("CALL print")
+        asm_clau.write_line("POP EBX")
 
 class If(Node):
     def Evaluate(self):
+        unique_id = Node.new_id()
+        asm_clau.write_line(f'IF_{unique_id}:')
         if len(self.children) == 3:
             condition = self.children[0]
             condition_true = self.children[1]
             condition_false = self.children[2]
-            (_type, cond_true) = condition.Evaluate()
-            if (cond_true):
-                return condition_true.Evaluate()
-            else:
-                return condition_false.Evaluate()
-        # if (a.Evaluate()):
-        #     return b.Evaluate()
-        if len(self.children) == 2:
-            condition = self.children[0]
-            condition_true = self.children[1]
-            (_type, cond_true) = condition.Evaluate()
-            if (cond_true):
-                return condition_true.Evaluate()
+            (_type, cond_true, _pos) = condition.Evaluate()
+
+            asm_clau.write_line('CMP EBX, False')
+            asm_clau.write_line(f"JE ELSE_{unique_id}")
+
+            (_type, eval_true, _pos) = condition_true.Evaluate()
+
+            asm_clau.write_line(f'JMP EXIT_IF_{unique_id}')
+            asm_clau.write_line(f"ELSE_{unique_id}:")
+       
+        if len(self.children) == 3:
+            # This Evaluate writes more assembly code
+            (_type, eval_false, _pos) = condition_false.Evaluate()
+        
+        asm_clau.write_line(f"EXIT_IF_{unique_id}:")
 
 class While(Node):
     def Evaluate(self):
+        unique_id = Node.new_id()
+        asm_clau.write_line(f"LOOP_{unique_id}:")
         a, b = self.children
-        (res_type, res) = a.Evaluate()
-        while (res):
-            b.Evaluate()
-            (res_type, res) = a.Evaluate()
+        (res_type, res, _pos) = a.Evaluate()
+        asm_clau.write("CMP EBX, False")
+        asm_clau.write(f"JE EXIT_LOOP_{unique_id}")
+        (res_type_b, res_b, _pos) = b.Evaluate()
+        # No need for a while loop because we have JUMPS in the assembly code 
+        asm_clau.write_line(f"JMP LOOP_{unique_id}")
+        asm_clau.write_line(f"EXIT_LOOP_{unique_id}:")
 
 class Read(Node):
     def Evaluate(self):
@@ -194,6 +210,7 @@ class Identifier(Node):
 
 class IntVal(Node):
     def Evaluate(self):
+        #asm_clau.write_line(f"MOV EBX, {self.value};")
         return ('I32', self.value)
 
 class String(Node):
