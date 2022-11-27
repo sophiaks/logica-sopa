@@ -1,5 +1,3 @@
-from aux import mprint
-
 class FuncTable:
     table = {}
 
