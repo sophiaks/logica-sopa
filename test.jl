@@ -1,14 +1,7 @@
-fn soma(x: i32, y: i32) -> i32 {
-a = x + y;
-Print(a);
-return a;
+fn Main()
+{
+    var x: i32;
+    x = Read();
+    Print(x);
 }
-
-fn Main() {
-var a: i32;
-var b: i32;
-a = 3;
-b = soma(a, 4);
-Print(a);
-Print(b);
 }

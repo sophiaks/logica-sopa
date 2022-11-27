@@ -89,6 +89,8 @@ class Parser:
             mprint('________________')
 
             return dec
+        else:
+            raise Exception('Every function declaration must start with fn')
 
     @staticmethod
     def parseBlock():
