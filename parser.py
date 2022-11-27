@@ -1,6 +1,6 @@
 from tokenize import String
 from tokenizer import Tokenizer
-from node import BinOp, UnOp, NoOp, IntVal, Assignment, Print, Block, Identifier, Read, If, VarDec, While, String
+from node import BinOp, UnOp, NoOp, IntVal, Assignment, Print, Block, Identifier, Read, If, VarDec, While, String, FuncDec, FuncCall, Return
 from aux import mprint
 reserved_words = ['if', 'else', 'Print', 'function']
 
@@ -10,16 +10,102 @@ class Parser:
     open_par = False
 
     @staticmethod
+    def parseProgram():
+        declarations = []
+        while Parser.tokenizer.next.type != 'EOF':
+            dec = Parser.parseDeclaration()
+            declarations.append(dec)
+        block = Block('BLOCK', declarations)
+        return block
+
+    @staticmethod
+    def parseDeclaration():
+        # Initiating declaration node without children
+        dec = FuncDec(None, [])
+        func_type = None
+        fn_block = None
+        if Parser.tokenizer.next.type == 'FUNCTION':
+            #~~~ Consumes token ~~~#
+            Parser.tokenizer.selectNext()
+            if Parser.tokenizer.next.type != 'IDENTIFIER':
+                raise Exception("Missing identifier on function declaration")
+            func_name = Parser.tokenizer.next.value
+            fn_id_node = Identifier(Parser.tokenizer.next.value)
+            dec.children.append(fn_id_node)
+            Parser.tokenizer.selectNext()
+            if Parser.tokenizer.next.type != 'OPEN_PAR':
+                raise SyntaxError("Syntax Error")
+            Parser.tokenizer.selectNext()
+            while Parser.tokenizer.next.type != 'CLOSE_PAR':
+                if Parser.tokenizer.next.type == 'IDENTIFIER':
+                    funct_id_local = [Parser.tokenizer.next.value]
+                    Parser.tokenizer.selectNext()
+                    while Parser.tokenizer.next.type == "COMMA":
+                        Parser.tokenizer.selectNext()
+                        if Parser.tokenizer.next.type == 'IDENTIFIER':
+                            funct_id_local.append(Parser.tokenizer.next.value)
+                            Parser.tokenizer.selectNext()
+                    if Parser.tokenizer.next.type != 'COLON':
+                        raise Exception("Missing argument type")
+                    Parser.tokenizer.selectNext()
+                    type_local = Parser.tokenizer.next.value
+                    vardec = VarDec(type_local, funct_id_local)
+                    
+                    dec.children.append(vardec)
+                
+                    if Parser.tokenizer.next.type not in ['STRING', 'I32']:
+                        raise Exception('Function type not recognized')
+                    
+                    Parser.tokenizer.selectNext()
+            
+                if Parser.tokenizer.next.type == 'COMMA':
+                    Parser.tokenizer.selectNext()
+
+            Parser.tokenizer.selectNext()
+
+            if Parser.tokenizer.next.type == 'ARROW':
+
+                Parser.tokenizer.selectNext()
+                if Parser.tokenizer.next.type not in ['STRING', 'I32']:
+                    raise Exception("Missing function return type")
+                func_type = Parser.tokenizer.next.type
+                Parser.tokenizer.selectNext()
+            else: 
+                if Parser.tokenizer.next.type != 'OPEN_BRAC':
+                    raise Exception("Syntax Error")
+
+            if Parser.tokenizer.next.type == 'OPEN_BRAC':
+                fn_block = Parser.parseBlock()
+
+            dec.value = (func_type, func_name)
+            dec.children.append(fn_block)
+
+            print(dec.children)
+
+            
+
+            mprint('________________')
+            mprint("\nFinal FuncDec: ")
+            mprint(f"Value: {dec.value}")
+            mprint(f"Args: {dec.children}")
+            mprint(f"Block: {fn_block.children}")
+            mprint('________________')
+
+            return dec
+
+    @staticmethod
     def parseBlock():
+
         block = Block(None, [])
+        
         if Parser.tokenizer.next.type == 'OPEN_BRAC':
             #~~~ Consumes token ~~~#
             Parser.tokenizer.selectNext()
 
             while Parser.tokenizer.next.type != 'CLOSE_BRAC':
                 res = Parser.parseStatement()
-                if res != None: # Might be useless
-                    block.children.append(res)
+                
+                block.children.append(res)
                 
                 if Parser.tokenizer.next.type == 'EOF':
                     raise Exception("Closing brackets not found")
@@ -31,7 +117,6 @@ class Parser:
 
     @staticmethod
     def parseStatement():
-
         if Parser.tokenizer.next.type == 'INT':
             raise Exception("Statements must not start with an INT type")
 
@@ -41,8 +126,6 @@ class Parser:
 
         ##      ASSIGNMENT       ##
         if Parser.tokenizer.next.type == 'IDENTIFIER':
-            mprint("ASSIGNMENT")
-            mprint(f"    - Assigning value to {Parser.tokenizer.next.value}")
             id = Identifier(Parser.tokenizer.next.value)
 
             #~~~ Consumes token ~~~#
@@ -68,30 +151,24 @@ class Parser:
             return res
 
         ###     WHILE    ###
-            
         elif Parser.tokenizer.next.type == "WHILE":
-            mprint("WHILE CLAUSE")
             Parser.tokenizer.selectNext()
             if Parser.tokenizer.next.type == 'OPEN_PAR':
                 Parser.tokenizer.selectNext()
                 resCondition = Parser.parseRelExpression()
-                mprint("Condition Parsed")
             if Parser.tokenizer.next.type != 'CLOSE_PAR':
                 raise Exception("Missing )")
             Parser.tokenizer.selectNext()
             if Parser.tokenizer.next.type == 'OPEN_BRAC':
                 resStatement = Parser.parseBlock()
-                mprint("Block parsed")
             else:
                 resStatement = Parser.parseStatement()
-                mprint("Statement parsed")
             res = While('WHILE', [resCondition, resStatement])
             return res
 
         ##      IF       ##
-
         elif Parser.tokenizer.next.type == "IF":
-            mprint("IF CLAUSE")
+            #mprint("IF CLAUSE")
             Parser.tokenizer.selectNext()
 
             # Condition is mandatory
@@ -111,21 +188,21 @@ class Parser:
                     raise Exception("Empty if clause")
                 # One-line if clause
                 else:
-                    mprint("    - One-liner If")
+                    #mprint("    - One-liner If")
                     resStatement = Parser.parseStatement()
                     Parser.tokenizer.selectNext()
-                    mprint(f"resStatement is {resStatement}")
+                    #mprint(f"resStatement is {resStatement}")
                 
                 if Parser.tokenizer.next.type == "ELSE":
-                    mprint("    - Else clause")
+                    #mprint("    - Else clause")
                     Parser.tokenizer.selectNext()
                     # If-else clause
                     res = If('IF', [resCondition, resStatement, Parser.parseStatement()])
 
                 else:
                     # No else
-                    mprint("    - If with no else")
-                    mprint(Parser.tokenizer.next.type)
+                    #mprint("    - If with no else")
+                    #mprint(Parser.tokenizer.next.type)
                     res = If('IF', [resCondition, resStatement])
             
             # More than one else
@@ -134,9 +211,8 @@ class Parser:
             return res
             
         ###     VARIABLE DECLARATION     ###
-
         elif Parser.tokenizer.next.type == 'VAR':
-            mprint("VARIABLE DECLARATION")
+            #mprint("VARIABLE DECLARATION")
             #~~~ Consumes token ~~~#
             Parser.tokenizer.selectNext()
 
@@ -144,7 +220,7 @@ class Parser:
                 res = VarDec("", [])
                 # Adds first identifier to list
                 res.children.append(Parser.tokenizer.next.value)
-                mprint(f"    - Declaring {Parser.tokenizer.next.value}")
+                #mprint(f"    - Declaring {Parser.tokenizer.next.value}")
                 #~~~ Consumes token ~~~#
                 Parser.tokenizer.selectNext()
 
@@ -152,7 +228,7 @@ class Parser:
                     #~~~ Consumes token ~~~#
                     Parser.tokenizer.selectNext()
                     res.children.append(Parser.tokenizer.next.value)
-                    mprint(f"    - Declaring {Parser.tokenizer.next.value}")
+                    # mprint(f"    - Declaring {Parser.tokenizer.next.value}")
                     #~~~ Consumes token ~~~#
                     Parser.tokenizer.selectNext()
                 
@@ -171,13 +247,11 @@ class Parser:
                     if Parser.tokenizer.next.type != 'SEMICOLON':
                         raise Exception("Missing ';'")
 
-                # #~~~ Consumes token ~~~#
-
             return res
         
         ###     PRINT   ###
-
         elif Parser.tokenizer.next.type == 'PRINT':
+            #mprint("CALLING PRINT")
             #~~~ Consumes token ~~~#
             Parser.tokenizer.selectNext()
             
@@ -203,10 +277,15 @@ class Parser:
             else:
                 raise Exception(f'Syntax Error: Expected OPEN_PAR but got {Parser.tokenizer.next.value}')
         
+        elif Parser.tokenizer.next.type == 'RETURN':
+            res = Return('RETURN', [])
+            Parser.tokenizer.selectNext()
+
+            res.children = Parser.parseRelExpression()
+            return res
+
         else:
             return Parser.parseBlock()
-
-        
 
     @staticmethod
     def parseRelExpression():
@@ -281,9 +360,22 @@ class Parser:
             Parser.tokenizer.selectNext()
             return res
         
+        ### FUNC CALL ###
         elif Parser.tokenizer.next.type == 'IDENTIFIER':
-            res = Identifier(Parser.tokenizer.next.value)
+            identifier = Parser.tokenizer.next.value
             Parser.tokenizer.selectNext()
+            if Parser.tokenizer.next.type == 'OPEN_PAR':
+                arg_list = []
+                Parser.tokenizer.selectNext()
+                while Parser.tokenizer.next.type != 'CLOSE_PAR':
+                    arg = Parser.parseRelExpression()
+                    arg_list.append(arg)
+                    if Parser.tokenizer.next.type == 'COMMA':
+                        Parser.tokenizer.selectNext()
+                res = FuncCall(identifier, arg_list)
+                Parser.tokenizer.selectNext()
+            else:
+                res = Identifier(identifier)
             return res
 
         elif Parser.tokenizer.next.type == 'STRING':
@@ -322,9 +414,8 @@ class Parser:
             return res
 
         ## READ OPERATIONS ##
-
         elif Parser.tokenizer.next.type == 'READ':
-            mprint("READING INPUT")
+            #mprint("READING INPUT")
             res = Read('READ')
             Parser.tokenizer.selectNext()
             if Parser.tokenizer.next.type != 'OPEN_PAR':
@@ -337,10 +428,10 @@ class Parser:
         
         else:
             raise Exception(f"Expected INT, or unary, but got {Parser.tokenizer.next.type} type, with {Parser.tokenizer.next.value} value")
-        return res
 
     def run(code):
         Parser.tokenizer = Tokenizer(code)
         Parser.tokenizer.selectNext()
-        res = Parser.parseBlock()
+        res = Parser.parseProgram()
+        res.children.append(FuncCall("Main", []))
         return res            

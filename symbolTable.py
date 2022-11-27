@@ -1,42 +1,34 @@
 from aux import mprint
 
-class SymbolTable:
-    table = {}
+class SymbolTable():
+    def __init__(self):
+        self.table = {}
 
-    @staticmethod
-    def assign_right_type(id_value, value):
-        (table_type, table_value) = SymbolTable.getValue(id_value)
+    def assign_right_type(self, id_value, value):
+        (table_type, table_value) = self.getValue(id_value)
         (assigned_type, assigned_value) = value
 
-        if (table_type != assigned_type):
+        if (table_type.upper() != assigned_type.upper()):
             raise Exception("SymbolTable type does not match assignment type")
 
-    @staticmethod
-    # Receives STR type with identifier name
-    def getValue(idvalue):
-        if idvalue not in SymbolTable.table:
+    def getValue(self, idvalue):
+        if idvalue not in self.table:
             raise Exception(f"Unrecognized symbol {idvalue} (have you declared it?)")
-        if SymbolTable.table[idvalue] is None:
+        if self.table[idvalue] is None:
             pass
-        return SymbolTable.table[idvalue]
+        return self.table[idvalue]
 
-    @staticmethod
-    def setValue(id_value, value):
-        SymbolTable.assign_right_type(id_value, value)
-        SymbolTable.table[id_value] = value
+    def setValue(self, id_value, value):
+        self.assign_right_type(id_value, value)
+        self.table[id_value] = value
 
-    @staticmethod
-    def var_declared(id_value):
-        if id_value in SymbolTable.table.keys():
+    def var_declared(self, id_value):
+        if id_value in self.table.keys():
             raise Exception("Identifier has been previously declared")
 
-    @staticmethod
-    def dec_var(var_type, id):
-        SymbolTable.var_declared(id)
-        SymbolTable.table[id] = (var_type, None)
-
+    def dec_var(self, var_type, id):
+        self.var_declared(id)
+        self.table[id] = (var_type, None)
     
-    @staticmethod
-    def getTable():
-        # METHOD FOR DEBUGGING ONLY
-        print(f"SymbolTable: {SymbolTable.table}")
+    def getTable(self):
+        print(f"SymbolTable: {self.table}")

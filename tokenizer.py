@@ -10,7 +10,9 @@ reserved_wrds = {
     'Read': 'READ',
     'i32': 'I32',
     'String': 'STRING',
-    'var': 'VAR'
+    'var': 'VAR',
+    'fn': 'FUNCTION',
+    'return': 'RETURN'
 }
 
 class Token:
@@ -26,7 +28,6 @@ class Tokenizer:
         self.first = True
 
     def selectNext(self):
-        
         if self.position == 0:
             self.first = False        
 
@@ -36,7 +37,6 @@ class Tokenizer:
         
         temp_next = ''
         
-
         if (self.source[self.position]).isdigit() or (self.source[self.position]).isalpha() or (self.source[self.position]) == '_':
             temp_next = ''
             while (self.source[self.position]).isdigit() or (self.source[self.position]).isalpha() or (self.source[self.position]) == '_':
@@ -144,6 +144,9 @@ class Tokenizer:
             self.next = Token('MINUS', '-')
             # print("Found MINUS")
             self.position += 1
+            if self.source[self.position] == '>':
+                self.next = Token('ARROW', '->')
+                self.position += 1
             return self.next
 
         elif self.source[self.position] == '*':

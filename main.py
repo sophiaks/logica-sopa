@@ -1,6 +1,7 @@
 import sys
 import re
 from parser import Parser
+from funcTable import FuncTable
 
 char_dict = {
     'PLUS': '+',
@@ -10,7 +11,6 @@ char_dict = {
     'OPEN_PAR': '(',
     'CLOSE_PAR': ')' 
 }
-
 
 def prePro(source):
     clean_code = re.sub(r"\s+","", source)
@@ -28,17 +28,8 @@ code = ''
 for line in lines:
     code += prePro(line)
 
-# Running the program
-# RUN WILL CALL PARSEBLOCK
 if len(code) == 0:
     raise Exception("Empty input")
 
-def printChildren(children):
-    print(children.children)
-
-res = Parser.run(code) 
-
-res.Evaluate()
-
-if Parser.tokenizer.next.type != 'EOF':
-    raise Exception(f"Found unexpected token '{Parser.tokenizer.next.value}'")
+res = Parser.run(code)
+res.Evaluate(FuncTable)
