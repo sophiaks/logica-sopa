@@ -23,8 +23,8 @@ class BinOp(Node):
         # Do not confuse with Operation value of nodes :)
 
         a, b = self.children
-        (type_a, value_a) = a.Evaluate()
-        (type_b, value_b) = b.Evaluate()
+        (type_a, value_a) = a.Evaluate(ST)
+        (type_b, value_b) = b.Evaluate(ST)
 
         if self.value == 'PLUS':
             # Recursion
@@ -81,7 +81,7 @@ class UnOp(Node):
 
         
         a = self.children[0]
-        (type_a, value_a) = a.Evaluate()
+        (type_a, value_a) = a.Evaluate(ST)
 
         if type_a != 'I32':
             raise Exception("Wrong data type for unary operation")
@@ -111,7 +111,7 @@ class Assignment(Node):
 
 class Print(Node):
     def Evaluate(self, ST):
-        (_type, a) = self.children[0].Evaluate()
+        (_type, a) = self.children[0].Evaluate(ST)
         if _type == 'I32':
             print(int(a))
         else:
@@ -125,25 +125,25 @@ class If(Node):
             condition = self.children[0]
             condition_true = self.children[1]
             condition_false = self.children[2]
-            (_type, cond_true) = condition.Evaluate()
+            (_type, cond_true) = condition.Evaluate(ST)
             if (cond_true):
-                return condition_true.Evaluate()
+                return condition_true.Evaluate(ST)
             else:
-                return condition_false.Evaluate()
+                return condition_false.Evaluate(ST)
         if len(self.children) == 2:
             condition = self.children[0]
             condition_true = self.children[1]
-            (_type, cond_true) = condition.Evaluate()
+            (_type, cond_true) = condition.Evaluate(ST)
             if (cond_true):
-                return condition_true.Evaluate()
+                return condition_true.Evaluate(ST)
 
 class While(Node):
     def Evaluate(self, ST):
         a, b = self.children
-        (res_type, res) = a.Evaluate()
+        (res_type, res) = a.Evaluate(ST)
         while (res):
             b.Evaluate()
-            (res_type, res) = a.Evaluate()
+            (res_type, res) = a.Evaluate(ST)
 
 class Read(Node):
     def Evaluate(self, ST):
@@ -167,28 +167,21 @@ class NoOp(Node):
 
 class Return(Node):
     def Evaluate(self, ST):
-        return self.children[0].Evaluate(ST)
+        return self.children.Evaluate(ST)
 
 class FuncCall(Node):
     def Evaluate(self, ST):
-
-        mprint('_____ FUNCTION CALL (NODE) ____')
         identifier = self.value
         # Declared will be of FuncDec type
         declared = FuncTable.getFunc(identifier)
         
         localSt = SymbolTable()
 
-        if identifier == "Main":
-            mprint(f'Main block: {declared.children[-1]}')
-            block = declared.children[-1]
-            #  Declare and Attribute the arguments
-            block.Evaluate(localSt)
+        call_id = declared.children[0]
+        declared_args = declared.children[1:len(declared.children)-1]
+        func_block = declared.children[-1]
 
-        else:
-            call_id = declared.children[0]
-            declared_args = declared.children[1:len(declared.children)-1]
-            func_block = declared.children[-1]
+        if call_id.value != 'Main':
 
             attr_args = self.children
 
@@ -205,9 +198,24 @@ class FuncCall(Node):
             mprint(f"Attributed arguments in Function Call: {attr_args}")
 
             for var_dec, var_attr in zip(declared_args, attr_args):
-                var_dec.Evaluate(localSt)
-                mprint(f'Declared argument: {var_dec.children}')
-                mprint(f'Attributed value: {var_attr.value}')
+                mprint(f'Attribution: {var_dec.children[0]} -> {var_attr.value}')
+
+                # Declare variables from function arguments
+                localSt.dec_var(var_dec.value.upper(), var_dec.children[0])
+                
+
+                if var_attr.value in ST.table:
+                    (attr_type, attr_val) = ST.getValue(var_attr.value)
+                    localSt.dec_var(attr_type, var_attr.value)
+                    localSt.setValue(var_attr.value, ST.getValue((var_attr.value)))
+                    localSt.setValue(var_dec.children[0], ST.getValue(var_attr.value))
+                else:
+                    localSt.setValue(var_dec.children[0], var_attr.Evaluate(localSt))
+                    # Is STRING or INT
+
+        return func_block.Evaluate(localSt)
+
+
 
 class FuncDec(Node):
     def Evaluate(self, ST):
@@ -219,7 +227,6 @@ class FuncDec(Node):
         block = self.children[-1]
         args = self.children[0:-1]
         ST.decFunc(fn_ret_type, fn_name, self)
-        ST.getTable()
 
         return
 

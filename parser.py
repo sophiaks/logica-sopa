@@ -79,9 +79,6 @@ class Parser:
 
             dec.value = (func_type, func_name)
             dec.children.append(fn_block)
-
-            print(dec.children)
-
             
 
             mprint('________________')

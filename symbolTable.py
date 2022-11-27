@@ -19,6 +19,7 @@ class SymbolTable():
         return self.table[idvalue]
 
     def setValue(self, id_value, value):
+        mprint(value)
         self.assign_right_type(id_value, value)
         self.table[id_value] = value
 

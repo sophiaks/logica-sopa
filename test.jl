@@ -1,5 +1,4 @@
 fn soma(x: i32, y: i32) -> i32 {
-var a: i32;
 a = x + y;
 Print(a);
 return a;
