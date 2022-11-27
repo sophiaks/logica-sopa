@@ -142,7 +142,7 @@ class While(Node):
         a, b = self.children
         (res_type, res) = a.Evaluate(ST)
         while (res):
-            b.Evaluate()
+            b.Evaluate(ST)
             (res_type, res) = a.Evaluate(ST)
 
 class Read(Node):
