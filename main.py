@@ -1,7 +1,7 @@
 import sys
 import re
 from parser import Parser
-from asm import ASM, asm_clau
+from asm import ASM as asm_write
 
 char_dict = {
     'PLUS': '+',
@@ -37,11 +37,11 @@ if len(code) == 0:
 def printChildren(children):
     print(children.children)
 
-asm_clau.createFile()
-
 res = Parser.run(code) 
 
 res.Evaluate()
+
+asm_write.createFile()
 
 if Parser.tokenizer.next.type != 'EOF':
     raise Exception(f"Found unexpected token '{Parser.tokenizer.next.value}'")
