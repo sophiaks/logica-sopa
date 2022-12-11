@@ -80,8 +80,45 @@ _start:
 
   PUSH EBP ; guarda o base pointer
   MOV EBP, ESP ; estabelece um novo base pointer
-  MOV EBX, 10 ; Evaluate() do filho da direita
+  PUSH DWORD 0 ; alocação na primeira atribuição
+  PUSH DWORD 0 ; alocação na primeira atribuição
+  PUSH DWORD 0 ; alocação na primeira atribuição
+  MOV EBX, 5;
+  MOV [EBP-8], EBX; resultado da atribuição - não há return
+  MOV EBX, 2;
   MOV [EBP-4], EBX; resultado da atribuição - não há return
+  MOV EBX, 1;
+  MOV [EBP-12], EBX; resultado da atribuição - não há return
+  LOOP_1:
+  MOV EBX, [EBP-4]
+  PUSH EBX
+  MOV EBX, [EBP-8]
+  PUSH EBX
+  MOV EBX, 1;
+  POP EAX
+  ADD EAX, EBX;
+  MOV EBX, EAX;
+  POP EAX
+  CMP EAX, EBX
+  CALL binop_jl
+  CMP EBX, False
+  JE EXIT_LOOP_1
+  MOV EBX, [EBP-12]
+  PUSH EBX
+  MOV EBX, [EBP-4]
+  POP EAX
+  ADD EAX, EBX;
+  MOV EBX, EAX;
+  MOV [EBP-12], EBX; resultado da atribuição - não há return
+  MOV EBX, [EBP-4]
+  PUSH EBX
+  MOV EBX, 1;
+  POP EAX
+  ADD EAX, EBX;
+  MOV EBX, EAX;
+  MOV [EBP-4], EBX; resultado da atribuição - não há return
+  JMP LOOP_1
+  EXIT_LOOP_1:
   PUSH EBX
   CALL print
   POP EBX

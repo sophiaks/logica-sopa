@@ -1,7 +1,8 @@
 import sys
 import re
-from parser import Parser
+from mparser import Parser
 from asm import ASM as asm_write
+from aux import mprint
 
 char_dict = {
     'PLUS': '+',
@@ -38,6 +39,10 @@ def printChildren(children):
     print(children.children)
 
 res = Parser.run(code) 
+mprint(f"ROOT RES: {res.children}")
+mprint("\n\n------------------")
+mprint("---- EVALUATE ----")
+mprint("------------------\n\n")
 
 res.Evaluate()
 

@@ -70,22 +70,19 @@ class Parser:
         ###     WHILE    ###
             
         elif Parser.tokenizer.next.type == "WHILE":
-            mprint("WHILE CLAUSE")
             Parser.tokenizer.selectNext()
             if Parser.tokenizer.next.type == 'OPEN_PAR':
                 Parser.tokenizer.selectNext()
                 resCondition = Parser.parseRelExpression()
-                mprint("Condition Parsed")
             if Parser.tokenizer.next.type != 'CLOSE_PAR':
                 raise Exception("Missing )")
             Parser.tokenizer.selectNext()
             if Parser.tokenizer.next.type == 'OPEN_BRAC':
                 resStatement = Parser.parseBlock()
-                mprint("Block parsed")
             else:
                 resStatement = Parser.parseStatement()
-                mprint("Statement parsed")
             res = While('WHILE', [resCondition, resStatement])
+            #mprint(f"\nResult of While parsing: {res}; children: {res.children}; condition: {res.children[0].value}; block: {res.children[1].children}\n")
             return res
 
         ##      IF       ##
@@ -222,6 +219,7 @@ class Parser:
             elif Parser.tokenizer.next.type == 'LESS_THAN':
                 Parser.tokenizer.selectNext()
                 res = BinOp('LESS_THAN', [res, Parser.parseExpression()])
+                print(f"Binary Operation < has children {res.children[0].value, res.children[1].value}")
 
             elif Parser.tokenizer.next.type == 'EQUAL':
                 Parser.tokenizer.selectNext()
@@ -278,6 +276,8 @@ class Parser:
     def parseFactor():
         if Parser.tokenizer.next.type == 'INT':
             res = IntVal(Parser.tokenizer.next.value)
+            if res is None:
+                mprint("AAAAAAAAAAAAA")
             Parser.tokenizer.selectNext()
             return res
         
@@ -290,8 +290,8 @@ class Parser:
             res = String(Parser.tokenizer.next.value)
             Parser.tokenizer.selectNext()
             return res
-        ## UNARY OPERATIONS ##
 
+        ## UNARY OPERATIONS ##
         elif Parser.tokenizer.next.type == 'MINUS':
             Parser.tokenizer.selectNext()
             res = UnOp('MINUS', [Parser.parseFactor()])
@@ -337,7 +337,6 @@ class Parser:
         
         else:
             raise Exception(f"Expected INT, or unary, but got {Parser.tokenizer.next.type} type, with {Parser.tokenizer.next.value} value")
-        return res
 
     def run(code):
         Parser.tokenizer = Tokenizer(code)

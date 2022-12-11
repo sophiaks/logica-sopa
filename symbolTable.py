@@ -7,7 +7,7 @@ class SymbolTable:
     @staticmethod
     def assign_right_type(id_value, value):
         (table_type, table_value, _pos) = SymbolTable.getValue(id_value)
-        (assigned_type, assigned_value) = value
+        (assigned_type, assigned_value, _pos) = value
 
         if (table_type != assigned_type):
             raise Exception("SymbolTable type does not match assignment type")
@@ -24,7 +24,9 @@ class SymbolTable:
     @staticmethod
     def setValue(id_value, value):
         SymbolTable.assign_right_type(id_value, value)
-        SymbolTable.table[id_value] = value
+        _type, _value, _pos = value
+        (dec_type, dec_val, dec_pos) = SymbolTable.getValue(id_value)
+        SymbolTable.table[id_value] = (_type, _value, dec_pos)
 
     @staticmethod
     def var_declared(id_value):
@@ -33,6 +35,7 @@ class SymbolTable:
 
     @staticmethod
     def dec_var(var_type, id):
+        # On declaration we assign position
         SymbolTable.var_declared(id)
         SymbolTable.position += 4
         SymbolTable.table[id] = (var_type, None, SymbolTable.position)

@@ -110,6 +110,7 @@ class ASM:
           for line in range(0, len(ASM.list_lines)):
             f.write("  ")
             f.write(ASM.list_lines[line])
+            print(ASM.list_lines[line])
         # Interruption Code
           f.write(interruption)
           f.close()
