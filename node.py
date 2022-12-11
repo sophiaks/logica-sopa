@@ -4,12 +4,12 @@ from asm import ASM as asm_write
 
 
 # TODO: Modificar o Evaluate() para gerar código para as seguintes operações:
-# – Declaração de variáveis
-# – Operações aritméticas
-# – Atribuição
-# – Condicional
-# – Loop
-# – Print
+# – Declaração de variáveis OK
+# – Operações aritméticas OK
+# – Atribuição OK
+# – Condicional OK
+# – Loop OK
+# – Print OK
 
 class Node:
     value = None
