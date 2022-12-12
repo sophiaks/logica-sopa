@@ -219,7 +219,6 @@ class Parser:
             elif Parser.tokenizer.next.type == 'LESS_THAN':
                 Parser.tokenizer.selectNext()
                 res = BinOp('LESS_THAN', [res, Parser.parseExpression()])
-                print(f"Binary Operation < has children {res.children[0].value, res.children[1].value}")
 
             elif Parser.tokenizer.next.type == 'EQUAL':
                 Parser.tokenizer.selectNext()

@@ -8,7 +8,7 @@
     f = 1;
 
     while (i < n + 1) {
-        f = f + i;
+        f = f * i;
         i = i + 1;
     }
 

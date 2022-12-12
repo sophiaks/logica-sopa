@@ -84,11 +84,11 @@ _start:
   PUSH DWORD 0 ; alocação na primeira atribuição
   PUSH DWORD 0 ; alocação na primeira atribuição
   MOV EBX, 5;
-  MOV [EBP-8], EBX; resultado da atribuição - não há return
+  MOV [EBP-8], EBX; resultado da atribuição
   MOV EBX, 2;
-  MOV [EBP-4], EBX; resultado da atribuição - não há return
+  MOV [EBP-4], EBX; resultado da atribuição
   MOV EBX, 1;
-  MOV [EBP-12], EBX; resultado da atribuição - não há return
+  MOV [EBP-12], EBX; resultado da atribuição
   LOOP_1:
   MOV EBX, [EBP-4]
   PUSH EBX
@@ -107,18 +107,19 @@ _start:
   PUSH EBX
   MOV EBX, [EBP-4]
   POP EAX
-  ADD EAX, EBX;
+  IMUL EAX, EBX;
   MOV EBX, EAX;
-  MOV [EBP-12], EBX; resultado da atribuição - não há return
+  MOV [EBP-12], EBX; resultado da atribuição
   MOV EBX, [EBP-4]
   PUSH EBX
   MOV EBX, 1;
   POP EAX
   ADD EAX, EBX;
   MOV EBX, EAX;
-  MOV [EBP-4], EBX; resultado da atribuição - não há return
+  MOV [EBP-4], EBX; resultado da atribuição
   JMP LOOP_1
   EXIT_LOOP_1:
+  MOV EBX, [EBP-12]
   PUSH EBX
   CALL print
   POP EBX

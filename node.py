@@ -148,17 +148,17 @@ class Assignment(Node):
             (_type, _value, _pos) = SymbolTable.getValue(identifier_node.value)
             SymbolTable.setValue(identifier_node.value, expression.Evaluate())
 
-            #asm_write.write_line(f'MOV EBX, {expression.Evaluate()[1]} ; Evaluate() do filho da direita')
-            asm_write.write_line(f'MOV [EBP-{_pos}], EBX; resultado da atribuição - não há return')
+            asm_write.write_line(f'MOV [EBP-{_pos}], EBX; resultado da atribuição')
 
 
 class Print(Node):
     def Evaluate(self):
-        # (_type, a) = self.children[0].Evaluate()
+        (_type, a, _pos) = self.children[0].Evaluate()
         # if _type == 'I32':
         #     print(int(a))
         # else:
         #     print(a)
+        #asm_write.write_line(f'MOV EBX, [EBP-{_pos}]')
         asm_write.write_line("PUSH EBX")
         asm_write.write_line("CALL print")
         asm_write.write_line("POP EBX")
@@ -229,10 +229,6 @@ class NoOp(Node):
     
 class Block(Node):
     def Evaluate(self):
-        print(self)
-        print(self.children)
-        print(self.children[0])
-        print(self.children[2])
         for child in self.children:
             # Evaluates chlidren in order
             child.Evaluate()
