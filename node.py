@@ -183,7 +183,7 @@ class If(Node):
        
         if len(self.children) == 3:
             # This Evaluate writes more assembly code
-            (_type, eval_false, _pos) = condition_false.Evaluate()
+            condition_false.Evaluate()
         
         asm_write.write_line(f"EXIT_IF_{unique_id}:")
 
