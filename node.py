@@ -172,7 +172,7 @@ class If(Node):
             condition_true = self.children[1]
             condition_false = self.children[2]
             condition.Evaluate()
-
+ 
             asm_write.write_line('CMP EBX, False')
             asm_write.write_line(f"JE ELSE_{unique_id}")
 
