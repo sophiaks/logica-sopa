@@ -171,12 +171,12 @@ class If(Node):
             condition = self.children[0]
             condition_true = self.children[1]
             condition_false = self.children[2]
-            (_type, cond_true, _pos) = condition.Evaluate()
+            condition.Evaluate()
 
             asm_write.write_line('CMP EBX, False')
             asm_write.write_line(f"JE ELSE_{unique_id}")
 
-            (_type, eval_true, _pos) = condition_true.Evaluate()
+            condition_true.Evaluate()
 
             asm_write.write_line(f'JMP EXIT_IF_{unique_id}')
             asm_write.write_line(f"ELSE_{unique_id}:")
