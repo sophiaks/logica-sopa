@@ -47,7 +47,6 @@ mprint("------------------\n\n")
 res.Evaluate()
 
 filename_no_ext = filename.split(".")[0]
-print(filename_no_ext
 asm_write.createFile(filename_no_ext)
 
 if Parser.tokenizer.next.type != 'EOF':
